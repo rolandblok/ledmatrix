@@ -52,6 +52,8 @@ function add_matrix_to_document() {
 
       container.appendChild(element);
     }
+    let linebreak = document.createElement("br");
+    container.appendChild(linebreak);
   }
 
   // Give buttons same color as leds
