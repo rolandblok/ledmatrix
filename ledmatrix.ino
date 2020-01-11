@@ -17,11 +17,22 @@ static const uint8_t D8   = 15;
 static const uint8_t D9   = 3;
 static const uint8_t D10  = 1;
 
-#define LED_PIN D6
-#define BLINK_PIN D4
-#define LED_MATRIX_WIDTH 1
-#define LED_MATRIX_HEIGHT 4
-#define LED_MATRIX_SIZE (LED_MATRIX_WIDTH * LED_MATRIX_HEIGHT)
+//#define __WJ 
+
+
+#ifdef __WJ
+  #define LED_PIN D6
+  #define BLINK_PIN D4
+  #define LED_MATRIX_WIDTH 1
+  #define LED_MATRIX_HEIGHT 4
+  #define LED_MATRIX_SIZE (LED_MATRIX_WIDTH * LED_MATRIX_HEIGHT)
+#else
+  #define LED_PIN   4    // : [NODEMCU:D2]  
+  #define BLINK_PIN 5    // : [NODEMCU:D1]  
+  #define LED_MATRIX_WIDTH 7
+  #define LED_MATRIX_HEIGHT 7
+  #define LED_MATRIX_SIZE (LED_MATRIX_WIDTH * LED_MATRIX_HEIGHT)
+#endif
 
 Adafruit_NeoPixel strip(LED_MATRIX_SIZE, LED_PIN, NEO_GRB + NEO_KHZ800);
 
