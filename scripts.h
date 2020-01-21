@@ -58,13 +58,7 @@ function add_matrix_to_document() {
   }
 
   // Give buttons same color as leds
-  for (var x = 1; x <= width; x++)
-  {
-    for (var y = 1; y <= height; y++)
-    {
-      update_color_of_button(get_id_from_xy(x, y));
-    }
-  }
+  update_color_of_all_buttons()
 }
 
 function update_color_of_led(event) {
@@ -103,7 +97,7 @@ function change_background_color_of_single_button(line) {
     var y = tokens[1];
     var c = tokens[2];
     var id = get_id_from_xy(x,y);    
-    var element = document.getElementById(element_id);
+    var element = document.getElementById(id);
     element.style.backgroundColor = convert_color_to_hex(c);
   }
 }

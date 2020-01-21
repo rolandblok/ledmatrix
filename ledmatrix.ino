@@ -108,6 +108,7 @@ void loop() {
 }
 
 void handle_serial() {
+  static int number_of_networks = 0;
   if (Serial.available() > 0) {
     String command = Serial.readStringUntil(10);
     Serial.println(" pressed : " + command);
@@ -115,14 +116,24 @@ void handle_serial() {
     if (command.equals("w")) {
       Serial.print("Scanning WiFi");
     
-      int number_of_networks = WiFi.scanNetworks();
+      number_of_networks = WiFi.scanNetworks();
       Serial.println("networks");
       for (int i = 0; i < number_of_networks; i++ ) {
         Serial.println("" + String(i) + " " + WiFi.SSID(i) + " " + WiFi.RSSI(i));
       }
       Serial.println("----------");
-    } else if (command.startsWith("c") {
-      
+    } else if (command.startsWith("c ")) {
+      if (command.length() > 2) {
+        long network_selected = command.substring(2).toInt();
+        Serial.print(" network selected " + String(network_selected));
+        if (number_of_networks > network_selected) {
+          Serial.println(" " + WiFi.SSID(network_selected) + " " + WiFi.RSSI(network_selected));
+          Serial.println("GIVE PASSWORD");
+          
+        } else {
+          Serial.println(" not available");
+        }
+      }
     } else  {
       Serial.println("press");
       Serial.println("  w      : available wifi");
