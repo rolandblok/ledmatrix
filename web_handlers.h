@@ -17,6 +17,19 @@ void handle_scripts() {
   server.send(200, "​application/javascript", scripts);
 }
 
+String get_colors_of_all_leds() {
+  String content = String();
+
+  for (int x = 1; x <= LED_MATRIX_WIDTH; x++) {
+    for (int y = 1; y <= LED_MATRIX_HEIGHT; y++) {
+      int index = xy_to_index(x, y);
+      content = content + String(x) + ";" + String(y) + ";" + color_to_string(led_colors[index]) + "\n";
+    }
+  }
+
+  return content;
+}
+
 void handle_get_data() {
   Serial.println("get_data requested");
   
@@ -46,19 +59,6 @@ void handle_get_data() {
     }
   }
   server.send(400, "text/plain", "Unrecognized arguments to get_data");
-}
-
-String get_colors_of_all_leds() {
-  String content = String();
-
-  for (int x = 1; x <= LED_MATRIX_WIDTH; x++) {
-    for (int y = 1; y <= LED_MATRIX_HEIGHT; y++) {
-      int index = xy_to_index(x, y);
-      content = content + String(x) + ";" + String(y) + ";" + color_to_string(led_colors[index]) + "\n";
-    }
-  }
-
-  return content;
 }
 
 void handle_set_data() {
