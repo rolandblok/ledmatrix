@@ -4,17 +4,17 @@ var height = undefined;
 var server = ""
 
 function fill_led_matrix() {
-  fetch(server+"get_data?item=width")
-    .then((response) => response.text())
-    .then((txt) => width = parseInt(txt) )
+  fetch("get_data?item=width")
+    .then( (response) => response.text() )
+    .then( (txt) => width = parseInt(txt) )
     .then(add_matrix_to_document)
-    .catch((ex) => console.log(ex));
+    .catch( (ex) => console.log(ex) );
 
   fetch("get_data?item=height")
-    .then((response) => response.text() )
-    .then((txt) => height = parseInt(txt) )
+    .then( (response) => response.text() )
+    .then( (txt) => height = parseInt(txt) )
     .then(add_matrix_to_document)
-    .catch((ex) => console.log(ex ));
+    .catch( (ex) => console.log(ex) );
 }
 
 function get_id_from_xy(x, y) {
@@ -72,16 +72,40 @@ function update_color_of_led(event) {
   var color = color_picker.jscolor.toRGBString().replace("rgb(", "").replace(")", "");
   var buttom_element_id = event.srcElement.id;
   fetch("set_data?item=color&" + buttom_element_id + "&value=" + color)
-    .then(() => update_color_of_button(buttom_element_id))
-    .catch((ex) => console.log(ex));
+    .then( () => update_color_of_button(buttom_element_id) )
+    .catch( (ex) => console.log(ex) );
+}
+
+function update_color_of_all_buttons() {
+  fetch("get_data?item=color")
+    .then( (response) => response.text() )
+    .then( change_background_color_of_buttons )
+    .catch( (ex) => console.log(ex) );
 }
 
 function update_color_of_button(element_id) {
   var element = document.getElementById(element_id);
   fetch("get_data?item=color&" + element_id)
-    .then((response) => response.text())
-    .then((txt) => element.style.backgroundColor = convert_color_to_hex(txt))
-    .catch((ex) => console.log(ex));
+    .then( (response) => response.text() )
+    .then( change_background_color_of_single_button )
+    .catch( (ex) => console.log(ex) );
+}
+
+function change_background_color_of_buttons(txt) {
+  var lines = txt.split('\n');
+  lines.forEach( (line) => change_background_color_of_single_button(line) );
+}
+
+function change_background_color_of_single_button(line) {
+  var tokens = line.split(';');
+  if (tokens.length == 3) {
+    var x = tokens[0];
+    var y = tokens[1];
+    var c = tokens[2];
+    var id = get_id_from_xy(x,y);    
+    var element = document.getElementById(element_id);
+    element.style.backgroundColor = convert_color_to_hex(c);
+  }
 }
 
 )-=o=-";
