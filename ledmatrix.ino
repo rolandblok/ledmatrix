@@ -121,6 +121,8 @@ void handle_serial() {
         Serial.println("" + String(i) + " " + WiFi.SSID(i) + " " + WiFi.RSSI(i));
       }
       Serial.println("----------");
+    } else if (command.startsWith("c") {
+      
     } else  {
       Serial.println("press");
       Serial.println("  w      : available wifi");
