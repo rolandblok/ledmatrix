@@ -50,8 +50,8 @@ void setup_serial_communication() {
 
 // Try to connect to one of a couple of WiFi networks
 void setup_wifi() {
-  Serial.print("Starting WiFi");
 
+  
   wifiMulti.addAP("Capibara", "waterzwijn");
   wifiMulti.addAP("fruitzender", "Knorknorknor1");
 
@@ -61,7 +61,6 @@ void setup_wifi() {
       Serial.print(".");
   }
   
-  Serial.println(" Done");
   Serial.println("SSID: " + WiFi.SSID() + "; IP address: " + WiFi.localIP().toString());
 }
 
@@ -105,6 +104,29 @@ void setup() {
 void loop() {
   server.handleClient();
   handle_leds();
+  handle_serial();
+}
+
+void handle_serial() {
+  if (Serial.available() > 0) {
+    String command = Serial.readStringUntil(10);
+    Serial.println(" pressed : " + command);
+  
+    if (command.equals("w")) {
+      Serial.print("Scanning WiFi");
+    
+      int number_of_networks = WiFi.scanNetworks();
+      Serial.println("networks");
+      for (int i = 0; i < number_of_networks; i++ ) {
+        Serial.println("" + String(i) + " " + WiFi.SSID(i) + " " + WiFi.RSSI(i));
+      }
+      Serial.println("----------");
+    } else  {
+      Serial.println("press");
+      Serial.println("  w      : available wifi");
+      Serial.println("  c <nr> : connect wifi network nr");
+    }
+  }
 }
 
 void handle_leds() {

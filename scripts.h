@@ -1,9 +1,10 @@
 char scripts[] = R"-=o=-(
 var width = undefined;
 var height = undefined;
+var server = ""
 
 function fill_led_matrix() {
-  fetch("get_data?item=width")
+  fetch(server+"get_data?item=width")
     .then((response) => response.text())
     .then((txt) => width = parseInt(txt) )
     .then(add_matrix_to_document)
