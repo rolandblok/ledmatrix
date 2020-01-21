@@ -33,12 +33,32 @@ void handle_get_data() {
     return;
   } else if (item == "color") {
     if (server.hasArg("x") && server.hasArg("y")) {
-      int index = xy_string_to_index(server.arg("x"), server.arg("y"));
-      server.send(200, "​text/plain", color_to_string(led_colors[index]));
+      String x = server.arg("x");
+      String y = server.arg("y");
+      int index = xy_string_to_index(x, y);
+      server.send(200, "​text/plain", x + ";" + y + ";" + color_to_string(led_colors[index]));
+      return;
+    }
+    else {
+      String content = get_colors_of_all_leds();
+      server.send(200, "​text/plain", content);
       return;
     }
   }
   server.send(400, "text/plain", "Unrecognized arguments to get_data");
+}
+
+String get_colors_of_all_leds() {
+  String content = String();
+
+  for (int x = 1; x <= LED_MATRIX_WIDTH; x++) {
+    for (int y = 1; y <= LED_MATRIX_HEIGHT; y++) {
+      int index = xy_to_index(x, y);
+      content = content + String(x) + ";" + String(y) + ";" + color_to_string(led_colors[index]) + "\n";
+    }
+  }
+
+  return content;
 }
 
 void handle_set_data() {
