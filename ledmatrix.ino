@@ -18,8 +18,6 @@ static const uint8_t D9   = 3;
 static const uint8_t D10  = 1;
 
 //#define __WJ 
-
-
 #ifdef __WJ
   #define LED_PIN D6
   #define BLINK_PIN D4
@@ -34,23 +32,26 @@ static const uint8_t D10  = 1;
   #define LED_MATRIX_SIZE (LED_MATRIX_WIDTH * LED_MATRIX_HEIGHT)
 #endif
 
+#include "utils.h"
+
 Adafruit_NeoPixel strip(LED_MATRIX_SIZE, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 uint32_t led_colors[LED_MATRIX_SIZE] = {strip.Color(255,0,0), strip.Color(0,255,0), strip.Color(0,0,255), strip.Color(255,255,255)};
 
-#include "utils.h"
+#define MAX_WIFI_AP 2
+int           glb_no_wifi_aps = 0;
+struct WifiAp glb_wifi_aps[MAX_WIFI_AP]; 
 
 // Define some function to setup different parts of the setup process
 
 void setup_serial_communication() {
   Serial.begin(115200);
   Serial.println();
-  Serial.println("Serial communication started");
+  Serial.println("Serial communication started, press ? for help");
 }
 
 // Try to connect to one of a couple of WiFi networks
 void setup_wifi() {
-
   
   wifiMulti.addAP("Capibara", "waterzwijn");
   wifiMulti.addAP("fruitzender", "Knorknorknor1");
@@ -93,11 +94,14 @@ void setup_led_matrix() {
 
 void setup() {
   setup_serial_communication();
+  setup_wifi_stuff();
+}
+
+void setup_wifi_stuff() {
   setup_wifi();
   setup_web_server();
   setup_led_matrix();
 }
-
 
 // loop() function -- runs repeatedly as long as board is on ---------------
 
@@ -109,11 +113,15 @@ void loop() {
 
 void handle_serial() {
   static int number_of_networks = 0;
+  static int wifi_pwd_input_on = false;
   if (Serial.available() > 0) {
     String command = Serial.readStringUntil(10);
-    Serial.println(" pressed : " + command);
-  
-    if (command.equals("w")) {
+
+    if (wifi_pwd_input_on) {
+      glb_wifi_aps[glb_no_wifi_aps].pwd = "" + command;
+      glb_no_wifi_aps ++;
+      wifi_pwd_input_on = false;
+    } else if (command.equals("w")) {
       Serial.print("Scanning WiFi");
     
       number_of_networks = WiFi.scanNetworks();
@@ -122,21 +130,40 @@ void handle_serial() {
         Serial.println("" + String(i) + " " + WiFi.SSID(i) + " " + WiFi.RSSI(i));
       }
       Serial.println("----------");
+      
+    } else if (command.equals("list")) {
+      Serial.println("Stored SSID + pwds : " + String(glb_no_wifi_aps));
+      for (int i = 0; i < glb_no_wifi_aps; i++) {
+         Serial.println(" " + String(i) + " : " + glb_wifi_aps[i].ssid + " - " + glb_wifi_aps[i].pwd);
+      }
+      Serial.println("----------");
+      
+    } else if (command.equals("clear")) {
+      Serial.println("clearing stored SSID + pwds");
+      glb_no_wifi_aps = 0;
+      
     } else if (command.startsWith("c ")) {
       if (command.length() > 2) {
         long network_selected = command.substring(2).toInt();
-        Serial.print(" network selected " + String(network_selected));
         if (number_of_networks > network_selected) {
-          Serial.println(" " + WiFi.SSID(network_selected) + " " + WiFi.RSSI(network_selected));
-          Serial.println("GIVE PASSWORD");
-          
+          if (glb_no_wifi_aps < MAX_WIFI_AP){
+            Serial.print(" network selected " + String(network_selected));
+            Serial.println(" " + WiFi.SSID(network_selected) + " " + WiFi.RSSI(network_selected));
+            glb_wifi_aps[glb_no_wifi_aps].ssid = "" + WiFi.SSID(network_selected);
+            Serial.println("ENTER PASSWORD");
+            wifi_pwd_input_on = true;
+          } else {
+            Serial.println("max number of wifi app surpased [" + String(MAX_WIFI_AP) + "]");
+          }
         } else {
           Serial.println(" not available");
         }
       }
     } else  {
-      Serial.println("press");
+      Serial.println("commands: ");
       Serial.println("  w      : available wifi");
+      Serial.println("  list   : list stored ssid + pwd");
+      Serial.println("  clear  : clear stored ssid + pwd");
       Serial.println("  c <nr> : connect wifi network nr");
     }
   }
