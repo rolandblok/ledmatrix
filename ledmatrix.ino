@@ -82,8 +82,8 @@ void setup_led_matrix() {
 void handle_wifi() {
 
   /*
-  wifiMulti.addAP("Capibara", "waterzwijn");
-  wifiMulti.addAP("fruitzender", "Knorknorknor1");
+  wifiMulti.addAP("Capibara", "xyz");
+  wifiMulti.addAP("fruitzender", "zyx");
 
   // Keep checking the connection status until it is connected
   while (wifiMulti.run() != WL_CONNECTED) {
