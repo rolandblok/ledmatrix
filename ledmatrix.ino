@@ -1,6 +1,8 @@
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266WebServer.h>
 #include <Adafruit_NeoPixel.h>
+#include <EEPROM.h>
+
 
 ESP8266WiFiMulti wifiMulti;
 ESP8266WebServer server(80);
@@ -33,36 +35,22 @@ static const uint8_t D10  = 1;
 #endif
 
 #include "utils.h"
+#include "wifi_ap.h"
 
 Adafruit_NeoPixel strip(LED_MATRIX_SIZE, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 uint32_t led_colors[LED_MATRIX_SIZE] = {strip.Color(255,0,0), strip.Color(0,255,0), strip.Color(0,0,255), strip.Color(255,255,255)};
 
-#define MAX_WIFI_AP 2
-int           glb_no_wifi_aps = 0;
-struct WifiAp glb_wifi_aps[MAX_WIFI_AP]; 
+boolean wifi_connected       = false;
+boolean wifi_set_connecting  = true;   // need to be able to stop for manual connecting.
 
 // Define some function to setup different parts of the setup process
+
 
 void setup_serial_communication() {
   Serial.begin(115200);
   Serial.println();
   Serial.println("Serial communication started, press ? for help");
-}
-
-// Try to connect to one of a couple of WiFi networks
-void setup_wifi() {
-  
-  wifiMulti.addAP("Capibara", "waterzwijn");
-  wifiMulti.addAP("fruitzender", "Knorknorknor1");
-
-  // Keep checking the connection status until it is connected
-  while (wifiMulti.run() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
-  }
-  
-  Serial.println("SSID: " + WiFi.SSID() + "; IP address: " + WiFi.localIP().toString());
 }
 
 #include "web_handlers.h"
@@ -90,46 +78,105 @@ void setup_led_matrix() {
   strip.show();            // Turn OFF all pixels ASAP
 }
 
+// Try to connect to one of a couple of WiFi networks
+void handle_wifi() {
+
+  /*
+  wifiMulti.addAP("Capibara", "waterzwijn");
+  wifiMulti.addAP("fruitzender", "Knorknorknor1");
+
+  // Keep checking the connection status until it is connected
+  while (wifiMulti.run() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+  }
+  */
+  
+  //WiFi.status() == WL_connected;
+  if (!wifi_connected) {
+    static unsigned long last_update_ms = millis();
+    unsigned long now_ms = millis();
+    if (((now_ms - last_update_ms) > 3000) && (wifi_set_connecting)) {
+      last_update_ms = now_ms;
+
+      if (wifiMulti.run() == WL_CONNECTED ) { 
+        wifi_connected = true;
+        Serial.println("SSID: " + WiFi.SSID() + "; IP address: " + WiFi.localIP().toString());
+        setup_web_server();
+      } else {
+        Serial.println(" connection failed");
+      }
+      
+    }
+  } else {
+      server.handleClient();
+  }
+  
+}
+
 // setup() function -- runs once at startup --------------------------------
 
 void setup() {
   setup_serial_communication();
-  setup_wifi_stuff();
-}
-
-void setup_wifi_stuff() {
-  setup_wifi();
-  setup_web_server();
+  setup_wifi_aps();
   setup_led_matrix();
+
 }
 
 // loop() function -- runs repeatedly as long as board is on ---------------
 
 void loop() {
-  server.handleClient();
+  handle_wifi();
+
   handle_leds();
   handle_serial();
 }
 
 void handle_serial() {
   static int number_of_networks = 0;
-  static int wifi_pwd_input_on = false;
+  static boolean wifi_pwd_input_on  = false;
+  static boolean wifi_ssid_input_on = false;
+  static struct WifiAp new_wifi_ap ;
   if (Serial.available() > 0) {
     String command = Serial.readStringUntil(10);
 
-    if (wifi_pwd_input_on) {
-      glb_wifi_aps[glb_no_wifi_aps].pwd = "" + command;
-      glb_no_wifi_aps ++;
-      wifi_pwd_input_on = false;
-    } else if (command.equals("w")) {
-      Serial.print("Scanning WiFi");
-    
+    if ( wifi_ssid_input_on ) {
+      wifi_ssid_input_on = false;
+      long network_selected = command.toInt();
+      if (number_of_networks > network_selected) {
+        if (glb_no_wifi_aps < WIFI_AP_MAX_APS){
+          Serial.print(" network selected " + String(network_selected));
+          Serial.println(" " + WiFi.SSID(network_selected) + " " + WiFi.RSSI(network_selected));
+          new_wifi_ap.ssid = "" + WiFi.SSID(network_selected);
+          Serial.println("ENTER PASSWORD");
+          wifi_pwd_input_on  = true;
+        } else {
+          Serial.println("max number of wifi app surpased [" + String(WIFI_AP_MAX_APS) + "]");
+          wifi_set_connecting = true;
+        }
+      } else {
+        Serial.println(" not available");
+        wifi_set_connecting = true;
+      }
+      
+    } else if (wifi_pwd_input_on) {
+      new_wifi_ap.pwd = "" + command;
+      wifi_ap_add_wifi_ap(new_wifi_ap);
+      wifi_pwd_input_on   = false;
+      wifi_set_connecting = true;
+      Serial.println("----------");
+      Serial.println(" " + new_wifi_ap.ssid + " - " + new_wifi_ap.pwd);
+      
+    } else if (command.equals("wifi")) {
+      wifi_set_connecting = false; // disable connecting, otherwize it will overwrite scanned wifis
+      Serial.println("Scanning WiFi");
+      delay(1000);
       number_of_networks = WiFi.scanNetworks();
-      Serial.println("networks");
       for (int i = 0; i < number_of_networks; i++ ) {
         Serial.println("" + String(i) + " " + WiFi.SSID(i) + " " + WiFi.RSSI(i));
       }
-      Serial.println("----------");
+      wifi_ssid_input_on = true;
+      Serial.println("SELECT SSID no");
       
     } else if (command.equals("list")) {
       Serial.println("Stored SSID + pwds : " + String(glb_no_wifi_aps));
@@ -140,31 +187,24 @@ void handle_serial() {
       
     } else if (command.equals("clear")) {
       Serial.println("clearing stored SSID + pwds");
-      glb_no_wifi_aps = 0;
+      wifi_ap_clear_wifi_aps();
+      Serial.println("----------");
       
-    } else if (command.startsWith("c ")) {
-      if (command.length() > 2) {
-        long network_selected = command.substring(2).toInt();
-        if (number_of_networks > network_selected) {
-          if (glb_no_wifi_aps < MAX_WIFI_AP){
-            Serial.print(" network selected " + String(network_selected));
-            Serial.println(" " + WiFi.SSID(network_selected) + " " + WiFi.RSSI(network_selected));
-            glb_wifi_aps[glb_no_wifi_aps].ssid = "" + WiFi.SSID(network_selected);
-            Serial.println("ENTER PASSWORD");
-            wifi_pwd_input_on = true;
-          } else {
-            Serial.println("max number of wifi app surpased [" + String(MAX_WIFI_AP) + "]");
-          }
-        } else {
-          Serial.println(" not available");
+    } else if (command.equals("eep")) {
+        EEPROM.begin(512);
+        Serial.println("----------");
+        for (int i = 0; i < 512 ; i++ ) {
+          Serial.println("" + String(i) + " " +String(EEPROM.read(i)));
         }
-      }
+        Serial.println("");
+        Serial.println("----------");
+        EEPROM.end();
+        
     } else  {
       Serial.println("commands: ");
-      Serial.println("  w      : available wifi");
+      Serial.println("  wifi   : scan available wifi and select");
       Serial.println("  list   : list stored ssid + pwd");
       Serial.println("  clear  : clear stored ssid + pwd");
-      Serial.println("  c <nr> : connect wifi network nr");
     }
   }
 }

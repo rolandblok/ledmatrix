@@ -33,10 +33,6 @@ int xy_string_to_index(String x, String y) {
   return xy_to_index(x.toInt(), y.toInt());
 }
 
-// https://github.com/arendst/Tasmota/issues/1943
-struct WifiAp { 
-  String ssid;
-  String pwd;
-};
+
 
 #endif
