@@ -42,6 +42,7 @@ void setup_wifi_aps() {
       glb_wifi_aps[ap_nr].pwd.concat(c);
       eep_adr ++ ;
     }
+    
     char ssid_buf[WIFI_AP_SSID_MAX_LEN];
     char pwd_buf[WIFI_AP_SSID_MAX_LEN];
     glb_wifi_aps[ap_nr].ssid.toCharArray(ssid_buf, WIFI_AP_SSID_MAX_LEN);
@@ -56,7 +57,7 @@ void setup_wifi_aps() {
  * add an wifi ap, return true if succes/fits
  */
 boolean wifi_ap_add_wifi_ap(struct WifiAp new_wifi_ap) {
-  
+  Serial.println(" wifi_ap_add_wifi_ap " + new_wifi_ap.ssid  + " " +String(new_wifi_ap.ssid.length())+ " - " + new_wifi_ap.pwd + " " + String(new_wifi_ap.pwd.length()));
   if ( glb_no_wifi_aps == WIFI_AP_MAX_APS) {
     return false;
   } else {
@@ -65,28 +66,30 @@ boolean wifi_ap_add_wifi_ap(struct WifiAp new_wifi_ap) {
     glb_wifi_aps[glb_no_wifi_aps].pwd  = String(new_wifi_ap.pwd);
 
     EEPROM.begin(WIFI_AP_EEPROM_SIZE);
-    for (int ap_nr = 0; ap_nr < glb_no_wifi_aps; ap_nr ++) {
-      unsigned int wifi_ap_adr = 1 + glb_no_wifi_aps*(WIFI_AP_SSID_MAX_LEN + WIFI_AP_PWD_MAX_LEN);
-      for (unsigned int j = 0; j < WIFI_AP_SSID_MAX_LEN; j ++) {
-        if (j < new_wifi_ap.ssid.length()) {
-          EEPROM.write(wifi_ap_adr + j, new_wifi_ap.ssid.charAt(j));
-        } else {
-          EEPROM.write(wifi_ap_adr + j, 0);
-        }
-      }
-      wifi_ap_adr += WIFI_AP_SSID_MAX_LEN;
-      for (unsigned int j = 0; j < WIFI_AP_PWD_MAX_LEN; j ++) {
-        if (j < new_wifi_ap.ssid.length()) {
-          EEPROM.write(wifi_ap_adr + j, new_wifi_ap.pwd.charAt(j));
-
-        } else {
-          EEPROM.write(wifi_ap_adr + j, 0);
-        }
-      }
-    }
 
     glb_no_wifi_aps ++;
     EEPROM.write(0, glb_no_wifi_aps);
+
+    unsigned int wifi_ap_adr = 1;
+    for (int ap_nr = 0; ap_nr < glb_no_wifi_aps; ap_nr ++) {
+      for (unsigned int j = 0; j < WIFI_AP_SSID_MAX_LEN; j ++) {
+        if (j < new_wifi_ap.ssid.length()) {
+          EEPROM.write(wifi_ap_adr, glb_wifi_aps[ap_nr].ssid.charAt(j));
+        } else {
+          EEPROM.write(wifi_ap_adr, 0);
+        }
+        wifi_ap_adr ++;
+      }
+      for (unsigned int j = 0; j < WIFI_AP_PWD_MAX_LEN; j ++) {
+        if (j < new_wifi_ap.ssid.length()) {
+          EEPROM.write(wifi_ap_adr, glb_wifi_aps[ap_nr].pwd.charAt(j));
+        } else {
+          EEPROM.write(wifi_ap_adr, 0);
+        }
+        wifi_ap_adr ++;
+      }
+    }
+
 
     EEPROM.commit();
     EEPROM.end();

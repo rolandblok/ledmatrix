@@ -190,10 +190,19 @@ void handle_serial() {
       wifi_ap_clear_wifi_aps();
       Serial.println("----------");
       
-    } else if (command.equals("eep")) {
+    } else if (command.equals("eepc")) {
         EEPROM.begin(512);
         Serial.println("----------");
         for (int i = 0; i < 512 ; i++ ) {
+          EEPROM.write(i, 0);
+        }
+        Serial.println("----------");
+        EEPROM.end();
+        
+    } else if (command.equals("eep")) {
+        EEPROM.begin(512);
+        Serial.println("----------");
+        for (int i = 0; i < 100 ; i++ ) {
           Serial.println("" + String(i) + " " +String(EEPROM.read(i)));
         }
         Serial.println("");
