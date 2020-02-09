@@ -111,7 +111,7 @@ boolean wifi_ap_add_wifi_ap(struct WifiAp new_wifi_ap) {
     EEPROM.end();
 
     char ssid_buf[WIFI_AP_SSID_MAX_LEN];
-    char pwd_buf[WIFI_AP_SSID_MAX_LEN];
+    char pwd_buf[WIFI_AP_PWD_MAX_LEN];
     new_wifi_ap.ssid.toCharArray(ssid_buf, WIFI_AP_SSID_MAX_LEN);
     new_wifi_ap.pwd.toCharArray(pwd_buf, WIFI_AP_PWD_MAX_LEN);
     wifiMulti.addAP(ssid_buf, pwd_buf);
