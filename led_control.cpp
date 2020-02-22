@@ -4,6 +4,7 @@
 #include "tracing.h"
 
 #include <Adafruit_NeoPixel.h>
+#include <Adafruit_NeoMatrix.h>
 #include <Arduino.h>
 
 
@@ -23,8 +24,8 @@ static const uint8_t D10  = 1;
 #ifdef __WJ
   int led_control_matrix_pin = D6;
   int led_control_blink_pin = D4;
-  int led_control_matrix_width = 3;
-  int led_control_matrix_height = 3;
+  int led_control_matrix_width = 16;
+  int led_control_matrix_height = 16;
   int led_control_matrix_size = led_control_matrix_width * led_control_matrix_height;
 #else
   int led_control_matrix_pin = 4;
@@ -34,23 +35,19 @@ static const uint8_t D10  = 1;
   int led_control_matrix_size = led_control_matrix_width * led_control_matrix_height;
 #endif
 
-uint32_t *led_control_led_colors = NULL;
-Adafruit_NeoPixel led_control_strip = Adafruit_NeoPixel();
+Adafruit_NeoMatrix led_matrix = Adafruit_NeoMatrix(led_control_matrix_width, led_control_matrix_height, led_control_matrix_pin,
+  NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
+  NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
 
-
-int xy_to_index(int x, int y) {
-  return (x-1)* led_control_matrix_width + (y-1);
-}
-
-int xy_string_to_index(String x, String y) {
-  return xy_to_index(x.toInt(), y.toInt());
-}
 
 void led_control_setup() {
   TRACE_IN();
   
   pinMode(led_control_matrix_pin, OUTPUT);
   led_control_set_led_matrix_size(led_control_matrix_width, led_control_matrix_height);
+  led_matrix.begin();
+  led_matrix.setTextWrap(false);
+  led_matrix.setBrightness(255);
   
   TRACE_OUT();
 }
@@ -61,29 +58,26 @@ void led_control_set_led_matrix_size(int width, int height) {
   led_control_matrix_width = width;
   led_control_matrix_height = height;
   led_control_matrix_size = width * height;
-  
-  if (led_control_led_colors != NULL) {
-    free(led_control_led_colors);
-  }
-  led_control_led_colors = (uint32_t*) malloc(width*height*sizeof(uint32_t));
 
-  led_control_strip.updateLength(led_control_matrix_size);
-  led_control_strip.setPin(led_control_matrix_pin);
-  led_control_strip.begin();
-  led_control_strip.show();
+  led_matrix.begin();
   
   for (int c = 1; c <= led_control_matrix_width; c++) {
     for (int r = 1; r <= led_control_matrix_height; r++) {
-      int i = xy_to_index(c, r);
-      if (c+r%2 == 0) {
-        led_control_led_colors[i] = 0x00000000;
-      } else {
-        led_control_led_colors[i] = 0xFFFFFFFF;
+      if ((c+r)%5 == 0) {
+        led_matrix.drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(255, 255, 255));
+      } else if ((c+r)%5 == 1) {
+        led_matrix.drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(255, 0, 0));
+      } else if ((c+r)%5 == 2) {
+        led_matrix.drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 255, 0));
+      } else if ((c+r)%5 == 3) {
+        led_matrix.drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 0, 255));
+      } else if ((c+r)%5 == 4) {
+        led_matrix.drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 0, 0));
       }
     }
   }
 
-  led_control_copy_to_strip();
+  led_matrix.show();
   
   TRACE_OUT();
 }
@@ -94,8 +88,8 @@ void led_control_set_cached_color(int column, int row, uint32_t color) {
   TRACE_VAR("row", String(row));
   TRACE_VAR("color", String(color, HEX));
   
-  int i = xy_to_index(column, row);
-  led_control_led_colors[i] = color;
+//  int i = xy_to_index(column, row);
+//  led_control_led_colors[i] = color;
 
   TRACE_OUT();
 }
@@ -105,24 +99,14 @@ uint32_t led_control_get_cached_color(int column, int row) {
   TRACE_VAR("column", String(column));
   TRACE_VAR("row", String(row));
   
-  int i = xy_to_index(column, row);
-
-  TRACE_OUT();
-  
-  return led_control_led_colors[i];
+//  int i = xy_to_index(column, row);
+//
+//  TRACE_OUT();
+//  
+//  return led_control_led_colors[i];
+  return 0;
 }
 
-
-void led_control_copy_to_strip() {
-  TRACE_IN();
-  
-  for (int c = 1; c <= led_control_matrix_width; c++) {
-    for (int r = 1; r <= led_control_matrix_height; r++) {
-      int i = xy_to_index(c, r);
-      led_control_strip.setPixelColor(i, led_control_led_colors[i]);
-    }
-  }
-  led_control_strip.show();
-
-  TRACE_OUT();
+void led_control_copy_to_strip()
+{
 }

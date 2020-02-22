@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <Adafruit_NeoPixel.h>
+
 String get_nth_token(String data, char separator, int index)
 {
     int found = 0;
@@ -21,5 +23,5 @@ String color_to_string(uint32_t color) {
 }
 
 uint32_t string_to_color(String color) {
-  return get_nth_token(color, ',', 0).toInt()<<16 | get_nth_token(color, ',', 1).toInt()<<8 | get_nth_token(color, ',', 2).toInt();
+  return Adafruit_NeoPixel::Color(get_nth_token(color, ',', 0).toInt(), get_nth_token(color, ',', 1).toInt(), get_nth_token(color, ',', 2).toInt());
 }
