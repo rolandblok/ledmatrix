@@ -20,7 +20,7 @@ static const uint8_t D8   = 15;
 static const uint8_t D9   = 3;
 static const uint8_t D10  = 1;
 
-#define __WJ 
+//#define __WJ 
 #ifdef __WJ
   int led_control_matrix_pin = D6;
   int led_control_blink_pin = D4;
