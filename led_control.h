@@ -13,6 +13,6 @@ void led_control_setup();
 void led_control_set_led_matrix_size(int width, int height);
 void led_control_set_cached_color(int column, int row, uint32_t color);
 uint32_t led_control_get_cached_color(int column, int row);
-void led_control_copy_to_strip();
+void led_control_update();
 
 #endif

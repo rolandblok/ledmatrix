@@ -2,6 +2,7 @@
 //
 //#include "tracing.h"
 //
+//#include <Arduino.h>
 //#include <EEPROM.h>
 //
 //const byte FIRST_BYTE = 0xA2;
@@ -11,18 +12,14 @@
 //
 //int EEPROM_SIZE = 4096;
 //
-//byte KEY_WIDTH = 1;
-//byte KEY_SSID = 2;
-//byte KEY_PASSWORD = 3;
-//
 //struct store_entry {
 //    byte key;
 //    byte data_size;
 //    byte *data;
-//}
+//};
 //
 //byte nbr_store_entries = 0;
-//struct store_entry *store_entries;
+//struct store_entry *store_entries = NULL;
 //
 //byte* read_bytes(int memory_index, int nbr_bytes) {
 //  TRACE_IN();
@@ -56,13 +53,13 @@
 //  
 //  int memory_index = 0;
 //  byte first_byte = EEPROM.read(memory_index++);
-//  TRACE_VAR("first_byte", "0x"+String(first_bute, HEX));
+//  TRACE_VAR("first_byte", "0x"+String(first_byte, HEX));
 //  byte second_byte = EEPROM.read(memory_index++);
-//  TRACE_VAR("second_byte", "0x"+String(first_bute, HEX));
+//  TRACE_VAR("second_byte", "0x"+String(second_byte, HEX));
 //  byte third_byte = EEPROM.read(memory_index++);
-//  TRACE_VAR("third_byte", "0x"+String(first_bute, HEX));
+//  TRACE_VAR("third_byte", "0x"+String(third_byte, HEX));
 //  byte fourth_byte = EEPROM.read(memory_index++);
-//  TRACE_VAR("fourth_byte", "0x"+String(first_bute, HEX));
+//  TRACE_VAR("fourth_byte", "0x"+String(fourth_byte, HEX));
 //
 //  if ( (first_byte == FIRST_BYTE) && (second_byte == SECOND_BYTE) && (third_byte == THIRD_BYTE) && (fourth_byte == FOURTH_BYTE)) {
 //    nbr_store_entries = 0;
@@ -72,8 +69,8 @@
 //    store_entries = (struct store_entry*) malloc(nbr_store_entries * sizeof(struct store_entry*));
 //    for (int store_entry_index = 0; store_entry_index < nbr_store_entries; store_entry_index) {
 //        store_entries[store_entry_index].key = EEPROM.read(memory_index++);
-//        data_sistore_entries[store_entry_index].data_size = EEPROM.read(memory_index++);
-//        data_sistore_entries[store_entry_index].data = read_bytes(memory_index, store_entries[store_entry_index].data_size);
+//        store_entries[store_entry_index].data_size = EEPROM.read(memory_index++);
+//        store_entries[store_entry_index].data = read_bytes(memory_index, store_entries[store_entry_index].data_size);
 //        memory_index += store_entries[store_entry_index].data_size;
 //    }
 //  }

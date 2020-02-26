@@ -1,12 +1,12 @@
 #include "led_control.h"
 
-#include "utils.h"
-#include "tracing.h"
-
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_NeoMatrix.h>
 #include <Arduino.h>
 
+#include "utils.h"
+#include "tracing.h"
+#include "pacman.h"
 
 static const uint8_t D0   = 16;
 static const uint8_t D1   = 5;
@@ -20,7 +20,7 @@ static const uint8_t D8   = 15;
 static const uint8_t D9   = 3;
 static const uint8_t D10  = 1;
 
-//#define __WJ 
+#define __WJ 
 #ifdef __WJ
   int led_control_matrix_pin = D6;
   int led_control_blink_pin = D4;
@@ -107,6 +107,11 @@ uint32_t led_control_get_cached_color(int column, int row) {
   return 0;
 }
 
-void led_control_copy_to_strip()
+void led_control_update()
 {
+  TRACE_IN();
+
+  update_pacman(led_matrix, led_control_matrix_width, led_control_matrix_height);
+  
+  TRACE_OUT();
 }
