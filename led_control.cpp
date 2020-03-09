@@ -111,7 +111,14 @@ void led_control_update()
 {
   TRACE_IN();
 
-  update_pacman(led_matrix, led_control_matrix_width, led_control_matrix_height);
+  led_matrix.clear();
+  
+  Timer timer = Timer(5.0);
+  Colors colors = Colors(0.1);
+  
+  update_pacman(led_matrix, timer, colors, led_control_matrix_width, led_control_matrix_height);
+
+  led_matrix.show();
   
   TRACE_OUT();
 }
