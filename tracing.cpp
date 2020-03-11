@@ -6,7 +6,7 @@
 #define OUT "<<< "
 #define VAR "  | "
 
-bool tracing_output_to_serial = true;
+bool tracing_output_to_serial = false;
 String nothing = String();
 
 void trace_extended(const char* in_or_out, String function_name, String filename, int line_nbr, String extra) {

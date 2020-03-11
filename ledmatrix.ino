@@ -8,6 +8,7 @@ ESP8266WiFiMulti wifiMulti;
 #include "wifi_ap.h"
 #include "web_handlers.h"
 #include "tracing.h"
+#include "NTPtime.h"
 
 #define TRACE_ALL false
 
@@ -33,27 +34,40 @@ void handle_wifi() {
     if (((now_ms - last_update_ms) > 3000) && (wifi_set_connecting)) {
       last_update_ms = now_ms;
 
-      if (wifiMulti.run() == WL_CONNECTED ) { 
+      if (wifiMulti.run() == WL_CONNECTED ) {
         wifi_connected = true;
         Serial.println("SSID: " + WiFi.SSID() + "; IP address: " + WiFi.localIP().toString());
         setup_web_server();
       } else {
         Serial.println(" connection failed");
       }
-      
+
     }
   } else {
-      handle_requests();
+    NTPSetup();
+    handle_requests();
   }
-  
+
   if (TRACE_ALL) TRACE_OUT();
+}
+
+/** 
+ *  Use this in debugging to reset your eeprom
+ */
+void EEPROM_reset() {
+  EEPROM.begin(512);
+  for (int i = 0; i < 512; i++) {
+    EEPROM.write(i, 0);
+  }
+  EEPROM.commit();
+  EEPROM.end();
 }
 
 // setup() function -- runs once at startup --------------------------------
 
 void setup() {
   setup_serial_communication();
-  tracing_set_output_on_serial(true);
+  tracing_set_output_on_serial(false);
   setup_wifi_aps();
   led_control_setup();
 }
@@ -80,7 +94,7 @@ void handle_serial() {
       wifi_ssid_input_on = false;
       long network_selected = command.toInt();
       if (number_of_networks > network_selected) {
-        if (glb_no_wifi_aps < WIFI_AP_MAX_APS){
+        if (glb_no_wifi_aps < WIFI_AP_MAX_APS) {
           Serial.print(" network selected " + String(network_selected));
           Serial.println(" " + WiFi.SSID(network_selected) + " " + WiFi.RSSI(network_selected));
           new_wifi_ap.ssid = "" + WiFi.SSID(network_selected);
@@ -94,7 +108,7 @@ void handle_serial() {
         Serial.println(" not available");
         wifi_set_connecting = true;
       }
-      
+
     } else if (wifi_pwd_input_on) {
       new_wifi_ap.pwd = "" + command;
       wifi_ap_add_wifi_ap(new_wifi_ap);
@@ -102,7 +116,7 @@ void handle_serial() {
       wifi_set_connecting = true;
       Serial.println("----------");
       Serial.println(" " + new_wifi_ap.ssid + " - " + new_wifi_ap.pwd);
-      
+
     } else if (command.equals("wifi")) {
       wifi_set_connecting = false; // disable connecting, otherwize it will overwrite scanned wifis
       Serial.println("Scanning WiFi");
@@ -113,38 +127,38 @@ void handle_serial() {
       }
       wifi_ssid_input_on = true;
       Serial.println("SELECT SSID no");
-      
+
     } else if (command.equals("list")) {
       Serial.println("Stored SSID + pwds : " + String(glb_no_wifi_aps));
       for (int i = 0; i < glb_no_wifi_aps; i++) {
-         Serial.println(" " + String(i) + " : " + glb_wifi_aps[i].ssid + " - " + glb_wifi_aps[i].pwd);
+        Serial.println(" " + String(i) + " : " + glb_wifi_aps[i].ssid + " - " + glb_wifi_aps[i].pwd);
       }
       Serial.println("----------");
-      
+
     } else if (command.equals("clear")) {
       Serial.println("clearing stored SSID + pwds");
       wifi_ap_clear_wifi_aps();
       Serial.println("----------");
-      
+
     } else if (command.equals("eepc")) {
-        EEPROM.begin(512);
-        Serial.println("----------");
-        for (int i = 0; i < 512 ; i++ ) {
-          EEPROM.write(i, 0);
-        }
-        Serial.println("----------");
-        EEPROM.end();
-        
+      EEPROM.begin(512);
+      Serial.println("----------");
+      for (int i = 0; i < 512 ; i++ ) {
+        EEPROM.write(i, 0);
+      }
+      Serial.println("----------");
+      EEPROM.end();
+
     } else if (command.equals("eep")) {
-        EEPROM.begin(512);
-        Serial.println("----------");
-        for (int i = 0; i < 100 ; i++ ) {
-          Serial.println("" + String(i) + " " +String(EEPROM.read(i)));
-        }
-        Serial.println("");
-        Serial.println("----------");
-        EEPROM.end();
-        
+      EEPROM.begin(512);
+      Serial.println("----------");
+      for (int i = 0; i < 100 ; i++ ) {
+        Serial.println("" + String(i) + " " + String(EEPROM.read(i)));
+      }
+      Serial.println("");
+      Serial.println("----------");
+      EEPROM.end();
+
     } else  {
       Serial.println("commands: ");
       Serial.println("  wifi   : scan available wifi and select");
@@ -158,22 +172,22 @@ void handle_serial() {
 
 void handle_leds() {
   if (TRACE_ALL) TRACE_IN();
-  
+
   static unsigned long last_update = millis();
   TRACE_VAR("last_update", String(last_update));
 
   int current = millis();
   TRACE_VAR("current", String(current));
 
-  TRACE_VAR("current-last_update", String(current-last_update));
+  TRACE_VAR("current-last_update", String(current - last_update));
 
-  if (current-last_update < 40) {
+  if (current - last_update < 40) {
     if (TRACE_ALL) TRACE_OUT();
     return;
   }
 
   led_control_update();
   last_update = current;
-  
+
   if (TRACE_ALL) TRACE_OUT();
 }
