@@ -139,7 +139,7 @@ time_t getNtpTime() {
 
 String getStrTime() {
   
-  return (String(hour()) + ":" + trail10print(minute(),true) + ":" + trail10print(second(),true) );
+  return (String(hour()) + "" + trail10print(minute(),true) + ":" + trail10print(second(),true) );
 }
 String getStrDate() {
     return (String(year()) + "-" + trail10print(month(),true) + "-" + trail10print(day(),true) );

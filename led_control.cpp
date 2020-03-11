@@ -120,10 +120,10 @@ void led_control_update()
   update_pacman(led_matrix, timer, colors, led_control_matrix_width, led_control_matrix_height);
 
   String tijd = getStrTime();
-  led_matrix.setTextColor(led_matrix.Color(255,255,0));
+  led_matrix.setTextColor(colors.get_matrix_color(255,0,0));
   led_matrix.setCursor(0, 0);
   led_matrix.setTextSize(1);
-  led_matrix.setTextWrap(false);
+  led_matrix.setTextWrap(true);
   led_matrix.print(tijd);
 
   led_matrix.show();
