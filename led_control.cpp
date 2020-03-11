@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "tracing.h"
 #include "pacman.h"
+#include "NTPtime.h"
 
 static const uint8_t D0   = 16;
 static const uint8_t D1   = 5;
@@ -117,6 +118,13 @@ void led_control_update()
   Colors colors = Colors(0.1);
   
   update_pacman(led_matrix, timer, colors, led_control_matrix_width, led_control_matrix_height);
+
+  String tijd = getStrTime();
+  led_matrix.setTextColor(led_matrix.Color(255,255,0));
+  led_matrix.setCursor(0, 0);
+  led_matrix.setTextSize(1);
+  led_matrix.setTextWrap(false);
+  led_matrix.print(tijd);
 
   led_matrix.show();
   
