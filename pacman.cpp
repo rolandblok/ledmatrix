@@ -30,6 +30,12 @@ char *pacman_frame2[5] = {" YYY ",
                           "YYY  ",
                           " YYY "};
 
+char *cat[5] = {"W W W",
+                "W RWR",
+                "WWWWW",
+                "WWWWW",
+                "W W W"};
+
 int16_t yellow = Adafruit_NeoMatrix::Color(255,255,0);
 int16_t black = Adafruit_NeoMatrix::Color(0,0,0);
 int16_t blue = Adafruit_NeoMatrix::Color(0,0,255);
@@ -54,6 +60,9 @@ void draw_from_characters(Adafruit_NeoMatrix &matrix, Colors &colors, int16_t lo
         case 'W':
           matrix.drawPixel(location_x+x, location_y+y, colors.get_matrix_color(255,255,255));
           break;
+        case 'R':
+          matrix.drawPixel(location_x+x, location_y+y, colors.get_matrix_color(255,0,0));
+          break;
       }
     }
   }
@@ -77,22 +86,7 @@ void draw_pacman(Adafruit_NeoMatrix &matrix, Timer &timer, Colors &colors, int16
 }
 
 void draw_cat(Adafruit_NeoMatrix &matrix, Timer &timer, Colors &colors, int16_t location_x, int16_t location_y) {
-  unsigned long t = millis();
-  double t_in_s = t / 1000.0;
-
-  int16_t cat_color = matrix.Color(242,164,92);
-  int16_t eye_color = matrix.Color(255,0,0);
-  int16_t erase_color = matrix.Color(0,0,0);
-
-  matrix.fillRect(location_x, location_y, 5, 5, cat_color);
-  matrix.drawPixel(location_x+1, location_y, erase_color);
-  matrix.drawPixel(location_x+3, location_y, erase_color);
-  matrix.drawPixel(location_x+1, location_y+1, erase_color);
-  matrix.drawPixel(location_x+1, location_y+4, erase_color);
-  matrix.drawPixel(location_x+3, location_y+4, erase_color);
-  matrix.drawPixel(location_x, location_y, cat_color);
-  matrix.drawPixel(location_x+4, location_y+1, eye_color);
-  matrix.drawPixel(location_x+2, location_y+1, eye_color);
+  draw_from_characters(matrix, colors, location_x, location_y, 5, 5, cat);
 }
 
 
@@ -102,6 +96,7 @@ void update_pacman(Adafruit_NeoMatrix &matrix, Timer &timer, Colors &colors, int
   int width_of_drawing = 5 + 3 + 5 + 3 + 5;
   int drawing_width = 21;
   int16_t time_in_period = timer.time_in_period(width+drawing_width+1);
+  
   draw_cat(matrix, timer, colors, -drawing_width + time_in_period, 9);
   draw_pacman(matrix, timer, colors, -drawing_width+ 5+3 + time_in_period, 9);
   draw_ghost(matrix, timer, colors, -drawing_width+ 5+3+5+3 + time_in_period, 9, matrix.Color(0,0,255));
