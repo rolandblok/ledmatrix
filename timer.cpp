@@ -17,6 +17,7 @@ bool Timer::is_in_period(double period, double lower, double upper) {
   return (current >= lower) && (current < upper);
 }
 
-int16_t get_location_for_period(int16_t matrix_width, int16_t image_width, double period, bool ) {
-  
+int16_t Timer::get_location_back_and_forth(int16_t matrix_width, int16_t image_width, double period) {
+  int16_t amplitude = (matrix_width - image_width)/2;
+  return amplitude - amplitude*cos(1.0*_frequency*_seconds/period/2/PI);
 }
