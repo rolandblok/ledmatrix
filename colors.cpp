@@ -13,7 +13,6 @@ int scale_green(int green) {
   int upper = lower+1;
   int remainder = green-(lower*16);
   double scale = remainder / 15.0;
-  TRACE_VAR("scale", String(scale));
   return (1.0-scale)*table[lower] + scale*table[upper];
 }
 
@@ -23,7 +22,6 @@ int16_t Colors::get_matrix_color(int r, int g, int b) {
   int scaled_b = _brightness*b;
 
   int corrected_g = scale_green(scaled_g);
-  TRACE_VAR("scaled_g -> correctred_g ", String(scaled_g) + " -> " + String(corrected_g));
 
   return Adafruit_NeoMatrix::Color(scaled_r,corrected_g,scaled_b);
 }

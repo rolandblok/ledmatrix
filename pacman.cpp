@@ -97,9 +97,9 @@ void update_pacman(Adafruit_NeoMatrix &matrix, Timer &timer, Colors &colors, int
   int drawing_width = 21;
   int16_t time_in_period = timer.time_in_period(width+drawing_width+1);
   
-  draw_cat(matrix, timer, colors, -drawing_width + time_in_period, 9);
-  draw_pacman(matrix, timer, colors, -drawing_width+ 5+3 + time_in_period, 9);
-  draw_ghost(matrix, timer, colors, -drawing_width+ 5+3+5+3 + time_in_period, 9, matrix.Color(0,0,255));
+  draw_cat(matrix, timer, colors, -drawing_width + time_in_period, 10);
+  draw_pacman(matrix, timer, colors, -drawing_width+ 5+3 + time_in_period, 10);
+  draw_ghost(matrix, timer, colors, -drawing_width+ 5+3+5+3 + time_in_period, 10, matrix.Color(0,0,255));
 
   TRACE_OUT();
 }

@@ -16,3 +16,7 @@ bool Timer::is_in_period(double period, double lower, double upper) {
   double current = fmod(_frequency*_seconds, period);
   return (current >= lower) && (current < upper);
 }
+
+int16_t get_location_for_period(int16_t matrix_width, int16_t image_width, double period, bool ) {
+  
+}

@@ -174,13 +174,8 @@ void handle_leds() {
   if (TRACE_ALL) TRACE_IN();
 
   static unsigned long last_update = millis();
-  TRACE_VAR("last_update", String(last_update));
-
   int current = millis();
-  TRACE_VAR("current", String(current));
-
-  TRACE_VAR("current-last_update", String(current - last_update));
-
+  
   if (current - last_update < 40) {
     if (TRACE_ALL) TRACE_OUT();
     return;

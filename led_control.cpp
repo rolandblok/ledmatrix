@@ -44,6 +44,7 @@ Adafruit_NeoMatrix led_matrix = Adafruit_NeoMatrix(led_control_matrix_width, led
 void led_control_setup() {
   TRACE_IN();
   
+  pinMode(A0, INPUT); 
   pinMode(led_control_matrix_pin, OUTPUT);
   led_control_set_led_matrix_size(led_control_matrix_width, led_control_matrix_height);
   led_matrix.begin();
@@ -115,16 +116,18 @@ void led_control_update()
   led_matrix.clear();
   
   Timer timer = Timer(5.0);
-  Colors colors = Colors(0.1);
   
-  update_pacman(led_matrix, timer, colors, led_control_matrix_width, led_control_matrix_height);
-
+  int potentiometer = analogRead(A0);
+  Colors colors = Colors(potentiometer/1024.0);
+    
   String tijd = getStrTime();
   led_matrix.setTextColor(colors.get_matrix_color(255,0,0));
   led_matrix.setCursor(0, 0);
   led_matrix.setTextSize(1);
   led_matrix.setTextWrap(true);
   led_matrix.print(tijd);
+
+  update_pacman(led_matrix, timer, colors, led_control_matrix_width, led_control_matrix_height);
 
   led_matrix.show();
   
