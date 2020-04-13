@@ -1,10 +1,77 @@
-//#include "non_volatile_data.h"
-//
-//#include "tracing.h"
-//
-//#include <Arduino.h>
-//#include <EEPROM.h>
-//
+#include "non_volatile_data.h"
+
+#include "tracing.h"
+
+#include <Arduino.h>
+#include <EEPROM.h>
+
+//=================================
+// ROLAND IMPLEMENTATION hard coded
+//=================================
+
+byte checksum(struct EepromMem eeprom_mem_arg) {
+  return eeprom_mem_arg.led_matrix_width + eeprom_mem_arg.led_matrix_height + eeprom_mem_arg.no_wifi_aps;
+}
+
+
+/** 
+ *  Use this in debugging to reset your eeprom
+ */
+boolean eeprom_clear() {
+  EEPROM.begin(sizeof(eeprom_mem_glb));
+  for (int i = 0; i < sizeof(eeprom_mem_glb); i++) {
+    EEPROM.write(i, 0);
+  }
+  EEPROM.commit();
+  EEPROM.end();
+
+  return true;
+}
+
+boolean eeprom_init() {
+  EepromMem eeprom_mem_tmp = {};
+  EEPROM.begin(sizeof(EepromMem));
+  EEPROM.get(0, eeprom_mem_tmp);
+  EEPROM.end();
+  if (eeprom_mem_tmp.valid == 1) {
+    if (eeprom_mem_tmp.checksum == checksum(eeprom_mem_tmp)) {
+      eeprom_mem_glb = eeprom_mem_tmp;
+    } else {
+      Serial.println("eeprom checksum invallid");
+    }
+  } else {
+    Serial.println("eeprom read invallid");
+    return false;
+  }
+
+  return true;
+}
+
+boolean eeprom_write() {
+  eeprom_mem_glb.valid = 1;
+  eeprom_mem_glb.checksum = checksum(eeprom_mem_glb);
+  EEPROM.begin(sizeof(eeprom_mem_glb));
+  EEPROM.put(0, eeprom_mem_glb);
+  EEPROM.commit();
+  EEPROM.end();
+
+  return true;
+}
+
+void eeprom_serial() {
+  Serial.println("led_matrix_width  " + eeprom_mem_glb.led_matrix_width );
+  Serial.println("led_matrix_height " + eeprom_mem_glb.led_matrix_height);
+  Serial.println("no_wifi_aps " + eeprom_mem_glb.no_wifi_aps);
+  for (int i = 0; i < eeprom_mem_glb.no_wifi_aps; i ++) {
+    Serial.println(" " + String(i) + " " +String(eeprom_mem_glb.wifi_aps[i].ssid_buf));
+    Serial.println("     " + String(eeprom_mem_glb.wifi_aps[i].pwd_buf));
+  }
+}
+
+
+//================================
+// WJ IMPLEMENTATION NOT FINISHED;
+//================================
 //const byte FIRST_BYTE = 0xA2;
 //const byte SECOND_BYTE = 0x05;
 //const byte THIRD_BYTE = 0xB0;

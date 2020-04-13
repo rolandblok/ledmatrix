@@ -9,6 +9,7 @@ ESP8266WiFiMulti wifiMulti;
 #include "web_handlers.h"
 #include "tracing.h"
 #include "NTPtime.h"
+#include "non_volatile_data.h"
 
 #define TRACE_ALL false
 
@@ -66,7 +67,7 @@ void EEPROM_reset() {
 // setup() function -- runs once at startup --------------------------------
 
 void setup() {
-  EEPROM_reset();
+  //EEPROM_reset();
   setup_serial_communication();
   tracing_set_output_on_serial(false);
   setup_wifi_aps();
@@ -140,31 +141,17 @@ void handle_serial() {
       Serial.println("clearing stored SSID + pwds");
       wifi_ap_clear_wifi_aps();
       Serial.println("----------");
-
+    } else if (command.equals("eepl")) {
+      eeprom_serial();
     } else if (command.equals("eepc")) {
-      EEPROM.begin(512);
-      Serial.println("----------");
-      for (int i = 0; i < 512 ; i++ ) {
-        EEPROM.write(i, 0);
-      }
-      Serial.println("----------");
-      EEPROM.end();
-
-    } else if (command.equals("eep")) {
-      EEPROM.begin(512);
-      Serial.println("----------");
-      for (int i = 0; i < 100 ; i++ ) {
-        Serial.println("" + String(i) + " " + String(EEPROM.read(i)));
-      }
-      Serial.println("");
-      Serial.println("----------");
-      EEPROM.end();
-
+      eeprom_clear();
     } else  {
       Serial.println("commands: ");
       Serial.println("  wifi   : scan available wifi and select");
       Serial.println("  list   : list stored ssid + pwd");
       Serial.println("  clear  : clear stored ssid + pwd");
+      Serial.println("  eepl   : list eeprom stored data");
+      Serial.println("  eepc   : clear eeprom");
     }
   }
 

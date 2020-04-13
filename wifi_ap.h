@@ -7,7 +7,7 @@
 #define WIFI_AP_PWD_MAX_LEN  (64)
 #define WIFI_AP_EEPROM_SIZE  (1+WIFI_AP_MAX_APS*(WIFI_AP_SSID_MAX_LEN+WIFI_AP_PWD_MAX_LEN))
 
-struct WifiAp { 
+typedef struct WifiAp { 
   String ssid;
   String pwd;
 };
