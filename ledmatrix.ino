@@ -66,6 +66,7 @@ void EEPROM_reset() {
 // setup() function -- runs once at startup --------------------------------
 
 void setup() {
+  EEPROM_reset();
   setup_serial_communication();
   tracing_set_output_on_serial(false);
   setup_wifi_aps();
