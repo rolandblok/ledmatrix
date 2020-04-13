@@ -2,13 +2,10 @@
 #ifndef PACMAN_DATA
 #define PACMAN_DATA
 
-typedef uint32_t animation_frame[64];
-typedef animation_frame *animation;
-typedef animation *animation_collection;
 
 
 /* Piskel data for "RGBA" */
-animation rgba_data = {
+static const uint32_t rgba_data[2][64] = {
 {
 0xff0000ff, 0xff0000ff, 0xff0000ff, 0xff0000ff, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 
 0xff0000ff, 0xff0000ff, 0xff0000ff, 0xff0000ff, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 

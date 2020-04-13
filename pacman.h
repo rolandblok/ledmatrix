@@ -22,10 +22,7 @@ enum pix_obj_names {
 //static const pix_obj[PIX_OBJ_COUNT];
 
 
-static const animation[PIX_OBJ_COUNT] {
-  pakmen_data,
-  ghost_data
-};
+
 
 
 #endif 
