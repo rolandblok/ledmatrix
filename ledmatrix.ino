@@ -3,13 +3,13 @@
 
 ESP8266WiFiMulti wifiMulti;
 
+#include "non_volatile_data.h"
 #include "led_control.h"
 #include "utils.h"
 #include "wifi_ap.h"
 #include "web_handlers.h"
 #include "tracing.h"
 #include "NTPtime.h"
-#include "non_volatile_data.h"
 
 #define TRACE_ALL false
 

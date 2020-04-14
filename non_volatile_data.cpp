@@ -9,8 +9,8 @@
 // ROLAND IMPLEMENTATION hard coded
 //=================================
 
-byte checksum(struct EepromMem eeprom_mem_arg) {
-  return eeprom_mem_arg.led_matrix_width + eeprom_mem_arg.led_matrix_height + eeprom_mem_arg.no_wifi_aps;
+byte checksum(EepromMemo eeprom_memo_arg) {
+  return eeprom_memo_arg.led_matrix_width + eeprom_memo_arg.led_matrix_height + eeprom_memo_arg.no_wifi_aps;
 }
 
 
@@ -18,8 +18,8 @@ byte checksum(struct EepromMem eeprom_mem_arg) {
  *  Use this in debugging to reset your eeprom
  */
 boolean eeprom_clear() {
-  EEPROM.begin(sizeof(eeprom_mem_glb));
-  for (int i = 0; i < sizeof(eeprom_mem_glb); i++) {
+  EEPROM.begin(sizeof(eeprom_memo_glb));
+  for (int i = 0; i < sizeof(eeprom_memo_glb); i++) {
     EEPROM.write(i, 0);
   }
   EEPROM.commit();
@@ -29,13 +29,13 @@ boolean eeprom_clear() {
 }
 
 boolean eeprom_init() {
-  EepromMem eeprom_mem_tmp = {};
-  EEPROM.begin(sizeof(EepromMem));
-  EEPROM.get(0, eeprom_mem_tmp);
+  EepromMemo eeprom_memo_tmp = {};
+  EEPROM.begin(sizeof(EepromMemo));
+  EEPROM.get(0, eeprom_memo_tmp);
   EEPROM.end();
-  if (eeprom_mem_tmp.valid == 1) {
-    if (eeprom_mem_tmp.checksum == checksum(eeprom_mem_tmp)) {
-      eeprom_mem_glb = eeprom_mem_tmp;
+  if (eeprom_memo_tmp.valid == 1) {
+    if (eeprom_memo_tmp.checksum == checksum(eeprom_memo_tmp)) {
+      eeprom_memo_glb = eeprom_memo_tmp;
     } else {
       Serial.println("eeprom checksum invallid");
     }
@@ -48,10 +48,10 @@ boolean eeprom_init() {
 }
 
 boolean eeprom_write() {
-  eeprom_mem_glb.valid = 1;
-  eeprom_mem_glb.checksum = checksum(eeprom_mem_glb);
-  EEPROM.begin(sizeof(eeprom_mem_glb));
-  EEPROM.put(0, eeprom_mem_glb);
+  eeprom_memo_glb.valid = 1;
+  eeprom_memo_glb.checksum = checksum(eeprom_memo_glb);
+  EEPROM.begin(sizeof(eeprom_memo_glb));
+  EEPROM.put(0, eeprom_memo_glb);
   EEPROM.commit();
   EEPROM.end();
 
@@ -59,12 +59,12 @@ boolean eeprom_write() {
 }
 
 void eeprom_serial() {
-  Serial.println("led_matrix_width  " + eeprom_mem_glb.led_matrix_width );
-  Serial.println("led_matrix_height " + eeprom_mem_glb.led_matrix_height);
-  Serial.println("no_wifi_aps " + eeprom_mem_glb.no_wifi_aps);
-  for (int i = 0; i < eeprom_mem_glb.no_wifi_aps; i ++) {
-    Serial.println(" " + String(i) + " " +String(eeprom_mem_glb.wifi_aps[i].ssid_buf));
-    Serial.println("     " + String(eeprom_mem_glb.wifi_aps[i].pwd_buf));
+  Serial.println("led_matrix_width  " + eeprom_memo_glb.led_matrix_width );
+  Serial.println("led_matrix_height " + eeprom_memo_glb.led_matrix_height);
+  Serial.println("no_wifi_aps " + eeprom_memo_glb.no_wifi_aps);
+  for (int i = 0; i < eeprom_memo_glb.no_wifi_aps; i ++) {
+    Serial.println(" " + String(i) + " " +String(eeprom_memo_glb.wifi_aps[i].ssid_buf));
+    Serial.println("     " + String(eeprom_memo_glb.wifi_aps[i].pwd_buf));
   }
 }
 
