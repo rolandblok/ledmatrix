@@ -13,17 +13,17 @@
 #define EEPC_WIFI_AP_SSID_MAX_LEN (33)
 #define EEPC_WIFI_AP_PWD_MAX_LEN  (64)
 
-typedef struct WifiApEE { 
+typedef struct WifiApChar { 
     char ssid_buf[EEPC_WIFI_AP_SSID_MAX_LEN];
     char pwd_buf[EEPC_WIFI_AP_PWD_MAX_LEN];
-} WifiApEE;
+} WifiApChar;
 
 typedef struct EepromMem_struct {
   byte   valid;
   int    led_matrix_width;
   int    led_matrix_height;
   byte   no_wifi_aps;
-  WifiApEE wifi_aps[EEPC_WIFI_AP_MAX_APS] ; 
+  WifiApChar wifi_aps[EEPC_WIFI_AP_MAX_APS] ; 
   byte   checksum;
 } EepromMem;
 
@@ -47,22 +47,27 @@ int  getLedMatrixWidth() {
   return eeprom_mem_glb.led_matrix_width;
 }
 
+int    getNoWifiAps() {
+  return eeprom_mem_glb.no_wifi_aps;
+}
+
 void   addWifiAp(WifiApEE wifi_ap) {
   if ( eeprom_mem_glb.no_wifi_aps == 5 ) {
     eeprom_mem_glb.no_wifi_aps = 4; //we overwrite the last one :-)
   }
-  ssid.toCharArray(eeprom_mem_glb.ssid_buf[eeprom_mem_glb.no_wifi_aps], EEPC_WIFI_AP_SSID_MAX_LEN);
-  pwd.toCharArray(eeprom_mem_glb.pwd_buf[eeprom_mem_glb.no_wifi_aps], EEPC_WIFI_AP_PWD_MAX_LEN);
+  wifi_ap.ssid.toCharArray(eeprom_mem_glb.wifi_aps[eeprom_mem_glb.no_wifi_aps].ssid_buf, EEPC_WIFI_AP_SSID_MAX_LEN);
+  wifi_ap.pwd.toCharArray(eeprom_mem_glb.wifi_aps[eeprom_mem_glb.no_wifi_aps].pwd_buf, EEPC_WIFI_AP_PWD_MAX_LEN);
   eeprom_mem_glb.no_wifi_aps++;
 }
 
-String getWifiApsSSID() {
-  return String(eeprom_mem_glb.ssid_buf);
+WifiApEE getWifiAps(int id) {
+  WifiApEE wifi_app = {};
+  if ( (id > 0) && (id < eeprom_mem_glb.no_wifi_aps)) {
+    wifi_app.ssid = String(eeprom_mem_glb.wifi_aps[id].ssid_buf);
+    wifi_app.pwd  = String(eeprom_mem_glb.wifi_aps[id].pwd_buf);
+  }
+  return wifi_app;
 }
-void   addWifiApsPWD(String pwd) {
-  pwd.toCharArray(eeprom_mem_glb.pwd_buf, EEPC_WIFI_AP_SSID_MAX_LEN);
-}
-String getWifiApsPWD();
 
 
 byte checksum(EepromMem eeprom_memo_arg) {
@@ -92,10 +97,11 @@ boolean eeprom_init() {
     if (eeprom_mem_tmp.checksum == checksum(eeprom_mem_tmp)) {
       eeprom_mem_glb = eeprom_mem_tmp;
     } else {
-      Serial.println("eeprom checksum invallid");
+      Serial.println("eeprom checksum invalid");
+      return false;
     }
   } else {
-    Serial.println("eeprom read invallid");
+    Serial.println("eeprom read invalid");
     return false;
   }
 

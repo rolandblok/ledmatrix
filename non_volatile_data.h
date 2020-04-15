@@ -18,7 +18,8 @@ void setLedMatrixWidth(int w);
 int  getLedMatrixWidth();
 
 void   addWifiAps(WifiApEE wifi_ap);
-WifiApEE getWifiAps(id);
+int    getNoWifiAps();
+WifiApEE getWifiApp(int id);
 
 boolean eeprom_init();
 boolean eeprom_write();

@@ -52,23 +52,17 @@ void handle_wifi() {
   if (TRACE_ALL) TRACE_OUT();
 }
 
-/** 
- *  Use this in debugging to reset your eeprom
- */
-void EEPROM_reset() {
-  EEPROM.begin(512);
-  for (int i = 0; i < 512; i++) {
-    EEPROM.write(i, 0);
-  }
-  EEPROM.commit();
-  EEPROM.end();
-}
+
 
 // setup() function -- runs once at startup --------------------------------
 
 void setup() {
-  //EEPROM_reset();
   setup_serial_communication();
+
+  //eeprom_clear();
+  eeprom_init();
+  eeprom_serial();
+  
   tracing_set_output_on_serial(false);
   setup_wifi_aps();
   led_control_setup();
@@ -85,15 +79,15 @@ void loop() {
 void handle_serial() {
   if (TRACE_ALL) TRACE_IN();
 
+  enum serial_input {NO_INPUT = 0, WIFI_SSID, WIFI_PWD, WIDTH, HEIGHT} ;
+  static enum serial_input input_on = NO_INPUT;
+  
   static int number_of_networks = 0;
-  static boolean wifi_pwd_input_on  = false;
-  static boolean wifi_ssid_input_on = false;
   static struct WifiAp new_wifi_ap ;
   if (Serial.available() > 0) {
     String command = Serial.readStringUntil(10);
 
-    if ( wifi_ssid_input_on ) {
-      wifi_ssid_input_on = false;
+    if ( input_on == WIFI_SSID) {
       long network_selected = command.toInt();
       if (number_of_networks > network_selected) {
         if (glb_no_wifi_aps < WIFI_AP_MAX_APS) {
@@ -101,23 +95,37 @@ void handle_serial() {
           Serial.println(" " + WiFi.SSID(network_selected) + " " + WiFi.RSSI(network_selected));
           new_wifi_ap.ssid = "" + WiFi.SSID(network_selected);
           Serial.println("ENTER PASSWORD");
-          wifi_pwd_input_on  = true;
+          input_on = WIFI_PWD;
         } else {
           Serial.println("max number of wifi app surpased [" + String(WIFI_AP_MAX_APS) + "]");
           wifi_set_connecting = true;
+          input_on = NO_INPUT;
         }
       } else {
         Serial.println(" not available");
         wifi_set_connecting = true;
+        input_on = NO_INPUT;
       }
 
-    } else if (wifi_pwd_input_on) {
+    } else if (input_on == WIFI_PWD) {
       new_wifi_ap.pwd = "" + command;
       wifi_ap_add_wifi_ap(new_wifi_ap);
-      wifi_pwd_input_on   = false;
       wifi_set_connecting = true;
       Serial.println("----------");
       Serial.println(" " + new_wifi_ap.ssid + " - " + new_wifi_ap.pwd);
+      input_on = NO_INPUT;
+      
+    } else if (input_on == HEIGHT) {
+      setLedMatrixHeight(command.toInt());
+      Serial.println("INPUT WIDTH");
+      input_on = WIDTH;
+      
+    } else if (input_on == WIDTH) {
+      setLedMatrixWidth(command.toInt());
+      Serial.println("----------");
+      Serial.println(" aspect (w:h) : " + String(getLedMatrixWidth()) + " : " + String(getLedMatrixHeight()));
+      eeprom_write();
+      input_on = NO_INPUT;
 
     } else if (command.equals("wifi")) {
       wifi_set_connecting = false; // disable connecting, otherwize it will overwrite scanned wifis
@@ -127,7 +135,7 @@ void handle_serial() {
       for (int i = 0; i < number_of_networks; i++ ) {
         Serial.println("" + String(i) + " " + WiFi.SSID(i) + " " + WiFi.RSSI(i));
       }
-      wifi_ssid_input_on = true;
+      input_on = WIFI_SSID;
       Serial.println("SELECT SSID no");
 
     } else if (command.equals("list")) {
@@ -141,10 +149,14 @@ void handle_serial() {
       Serial.println("clearing stored SSID + pwds");
       wifi_ap_clear_wifi_aps();
       Serial.println("----------");
+      
     } else if (command.equals("eepl")) {
       eeprom_serial();
     } else if (command.equals("eepc")) {
       eeprom_clear();
+    } else if (command.equals("aspect")) {
+      Serial.println("INPUT HEIGHT");
+      input_on = HEIGHT;
     } else  {
       Serial.println("commands: ");
       Serial.println("  wifi   : scan available wifi and select");
@@ -152,6 +164,7 @@ void handle_serial() {
       Serial.println("  clear  : clear stored ssid + pwd");
       Serial.println("  eepl   : list eeprom stored data");
       Serial.println("  eepc   : clear eeprom");
+      Serial.println("  aspect : set matrix aspect (height / width)");
     }
   }
 
