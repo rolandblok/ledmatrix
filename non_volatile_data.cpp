@@ -9,10 +9,11 @@
 // ROLAND IMPLEMENTATION hard coded
 //=================================
 
+EepromMemo eeprom_memo_glb;
+
 byte checksum(EepromMemo eeprom_memo_arg) {
   return eeprom_memo_arg.led_matrix_width + eeprom_memo_arg.led_matrix_height + eeprom_memo_arg.no_wifi_aps;
 }
-
 
 /** 
  *  Use this in debugging to reset your eeprom
