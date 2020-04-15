@@ -5,27 +5,20 @@
 
 //==========================
 // Rolands versie hard coded
+
 #define EEPC_WIFI_AP_MAX_APS      (5)
-#define EEPC_WIFI_AP_SSID_MAX_LEN (33)
-#define EEPC_WIFI_AP_PWD_MAX_LEN  (64)
-
 typedef struct WifiApEE { 
-    char ssid_buf[EEPC_WIFI_AP_SSID_MAX_LEN];
-    char pwd_buf[EEPC_WIFI_AP_SSID_MAX_LEN];
-} ;
+  String ssid;
+  String pwd;
+} WifiApEE;
 
-struct EepromMemo_struct {
-  byte   valid;
-  int    led_matrix_width;
-  int    led_matrix_height;
-  byte   no_wifi_aps;
-  WifiApEE wifi_aps[EEPC_WIFI_AP_MAX_APS] ; 
-  byte   checksum;
-};
+void setLedMatrixHeight(int h);
+int  getLedMatrixHeight();
+void setLedMatrixWidth(int w);
+int  getLedMatrixWidth();
 
-typedef struct EepromMemo_struct EepromMemo;
-
-extern EepromMemo eeprom_memo_glb;
+void   addWifiAps(WifiApEE wifi_ap);
+WifiApEE getWifiAps(id);
 
 boolean eeprom_init();
 boolean eeprom_write();
