@@ -1,12 +1,11 @@
 #include <ESP8266WiFiMulti.h>
-#include <EEPROM.h>
 
-ESP8266WiFiMulti wifiMulti;
+extern ESP8266WiFiMulti wifiMulti;
 
 #include "non_volatile_data.h"
 #include "led_control.h"
 #include "utils.h"
-#include "wifi_ap.h"
+#include "wifi_aps.h"
 #include "web_handlers.h"
 #include "tracing.h"
 #include "NTPtime.h"
@@ -110,14 +109,14 @@ void handle_serial() {
       input_on = NO_INPUT;
       
     } else if (input_on == HEIGHT) {
-      setLedMatrixHeight(command.toInt());
+      eeprom_setLedMatrixHeight(command.toInt());
       Serial.println("INPUT WIDTH");
       input_on = WIDTH;
       
     } else if (input_on == WIDTH) {
-      setLedMatrixWidth(command.toInt());
+      eeprom_setLedMatrixWidth(command.toInt());
       Serial.println("----------");
-      Serial.println(" aspect (w:h) : " + String(getLedMatrixWidth()) + " : " + String(getLedMatrixHeight()));
+      Serial.println(" aspect (w:h) : " + String(eeprom_getLedMatrixWidth()) + " : " + String(eeprom_getLedMatrixHeight()));
       eeprom_write();
       input_on = NO_INPUT;
 
@@ -133,15 +132,15 @@ void handle_serial() {
       Serial.println("SELECT SSID no");
 
     } else if (command.equals("list")) {
-      Serial.println("Stored SSID + pwds : " + String(getNoWifiAps()));
-      for (int i = 0; i < getNoWifiAps(); i++) {
-        Serial.println(" " + String(i) + " : " + getWifiApp(i).ssid + " - " + getWifiApp(i).pwd);
+      Serial.println("Stored SSID + pwds : " + String(eeprom_getNoWifiAps()));
+      for (int i = 0; i < eeprom_getNoWifiAps(); i++) {
+        Serial.println(" " + String(i) + " : " + eeprom_getWifiAp(i).ssid + " - " + eeprom_getWifiAp(i).pwd);
       }
       Serial.println("----------");
 
     } else if (command.equals("clear")) {
       Serial.println("clearing stored SSID + pwds");
-      clearWifiAps();
+      clear_wifi_apps();
       Serial.println("----------");
       
     } else if (command.equals("eepl")) {

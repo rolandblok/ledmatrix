@@ -14,15 +14,15 @@ typedef struct WifiApEE {
   String pwd;
 } WifiApEE;
 
-void setLedMatrixHeight(int h);
-int  getLedMatrixHeight();
-void setLedMatrixWidth(int w);
-int  getLedMatrixWidth();
+void eeprom_setLedMatrixHeight(int h);
+int  eeprom_getLedMatrixHeight();
+void eeprom_setLedMatrixWidth(int w);
+int  eeprom_getLedMatrixWidth();
 
-void   addWifiAps(WifiApEE wifi_ap);
-int    getNoWifiAps();
-WifiApEE getWifiApp(int id);
-void   clearWifiAps();
+void   eeprom_addWifiAp(WifiApEE wifi_ap);
+int    eeprom_getNoWifiAps();
+WifiApEE eeprom_getWifiAp(int id);
+void   eeprom_clearWifiAps();
 
 boolean eeprom_init();
 boolean eeprom_write();

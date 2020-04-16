@@ -34,24 +34,24 @@ EepromMem eeprom_mem_glb;
 // ===============
 // getters setters
 // ===============
-void setLedMatrixHeight(int h) {
+void eeprom_setLedMatrixHeight(int h) {
   eeprom_mem_glb.led_matrix_height = h;
 }
-int  getLedMatrixHeight() {
+int  eeprom_getLedMatrixHeight() {
   return eeprom_mem_glb.led_matrix_height;
 }
-void setLedMatrixWidth(int w) {
+void eeprom_setLedMatrixWidth(int w) {
   eeprom_mem_glb.led_matrix_width = w;
 }
-int  getLedMatrixWidth() {
+int  eeprom_getLedMatrixWidth() {
   return eeprom_mem_glb.led_matrix_width;
 }
 
-int    getNoWifiAps() {
+int    eeprom_getNoWifiAps() {
   return eeprom_mem_glb.no_wifi_aps;
 }
 
-void   addWifiAp(WifiApEE wifi_ap) {
+void   eeprom_addWifiAp(WifiApEE wifi_ap) {
   if ( eeprom_mem_glb.no_wifi_aps == 5 ) {
     eeprom_mem_glb.no_wifi_aps = 4; //we overwrite the last one :-)
   }
@@ -60,7 +60,7 @@ void   addWifiAp(WifiApEE wifi_ap) {
   eeprom_mem_glb.no_wifi_aps++;
 }
 
-WifiApEE getWifiAps(int id) {
+WifiApEE eeprom_getWifiAp(int id) {
   WifiApEE wifi_app = {};
   if ( (id > 0) && (id < eeprom_mem_glb.no_wifi_aps)) {
     wifi_app.ssid = String(eeprom_mem_glb.wifi_aps[id].ssid_buf);
@@ -69,7 +69,7 @@ WifiApEE getWifiAps(int id) {
   return wifi_app;
 }
 
-void clearWifiAps() {
+void eeprom_clearWifiAps() {
   eeprom_mem_glb.no_wifi_aps = 0;
 }
 
