@@ -83,24 +83,18 @@ void handle_serial() {
   static enum serial_input input_on = NO_INPUT;
   
   static int number_of_networks = 0;
-  static struct WifiAp new_wifi_ap ;
+  static struct WifiApEE new_wifi_ap ;
   if (Serial.available() > 0) {
     String command = Serial.readStringUntil(10);
 
     if ( input_on == WIFI_SSID) {
       long network_selected = command.toInt();
       if (number_of_networks > network_selected) {
-        if (glb_no_wifi_aps < WIFI_AP_MAX_APS) {
-          Serial.print(" network selected " + String(network_selected));
-          Serial.println(" " + WiFi.SSID(network_selected) + " " + WiFi.RSSI(network_selected));
-          new_wifi_ap.ssid = "" + WiFi.SSID(network_selected);
-          Serial.println("ENTER PASSWORD");
-          input_on = WIFI_PWD;
-        } else {
-          Serial.println("max number of wifi app surpased [" + String(WIFI_AP_MAX_APS) + "]");
-          wifi_set_connecting = true;
-          input_on = NO_INPUT;
-        }
+        Serial.print(" network selected " + String(network_selected));
+        Serial.println(" " + WiFi.SSID(network_selected) + " " + WiFi.RSSI(network_selected));
+        new_wifi_ap.ssid = "" + WiFi.SSID(network_selected);
+        Serial.println("ENTER PASSWORD");
+        input_on = WIFI_PWD;
       } else {
         Serial.println(" not available");
         wifi_set_connecting = true;
@@ -139,15 +133,15 @@ void handle_serial() {
       Serial.println("SELECT SSID no");
 
     } else if (command.equals("list")) {
-      Serial.println("Stored SSID + pwds : " + String(glb_no_wifi_aps));
-      for (int i = 0; i < glb_no_wifi_aps; i++) {
-        Serial.println(" " + String(i) + " : " + glb_wifi_aps[i].ssid + " - " + glb_wifi_aps[i].pwd);
+      Serial.println("Stored SSID + pwds : " + String(getNoWifiAps()));
+      for (int i = 0; i < getNoWifiAps(); i++) {
+        Serial.println(" " + String(i) + " : " + getWifiApp(i).ssid + " - " + getWifiApp(i).pwd);
       }
       Serial.println("----------");
 
     } else if (command.equals("clear")) {
       Serial.println("clearing stored SSID + pwds");
-      wifi_ap_clear_wifi_aps();
+      clearWifiAps();
       Serial.println("----------");
       
     } else if (command.equals("eepl")) {

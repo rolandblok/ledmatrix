@@ -69,6 +69,9 @@ WifiApEE getWifiAps(int id) {
   return wifi_app;
 }
 
+void clearWifiAps() {
+  eeprom_mem_glb.no_wifi_aps = 0;
+}
 
 byte checksum(EepromMem eeprom_memo_arg) {
   return eeprom_memo_arg.led_matrix_width + eeprom_memo_arg.led_matrix_height + eeprom_memo_arg.no_wifi_aps;

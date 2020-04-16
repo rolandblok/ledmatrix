@@ -7,6 +7,8 @@
 // Rolands versie hard coded
 
 #define EEPC_WIFI_AP_MAX_APS      (5)
+#define EEPC_WIFI_AP_SSID_MAX_LEN (33)
+#define EEPC_WIFI_AP_PWD_MAX_LEN  (64)
 typedef struct WifiApEE { 
   String ssid;
   String pwd;
@@ -20,6 +22,7 @@ int  getLedMatrixWidth();
 void   addWifiAps(WifiApEE wifi_ap);
 int    getNoWifiAps();
 WifiApEE getWifiApp(int id);
+void   clearWifiAps();
 
 boolean eeprom_init();
 boolean eeprom_write();
