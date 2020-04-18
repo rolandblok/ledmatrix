@@ -1,19 +1,12 @@
-#include <ESP8266WiFiMulti.h>
-
-extern ESP8266WiFiMulti wifiMulti;
 
 #include "non_volatile_data.h"
 #include "led_control.h"
 #include "utils.h"
 #include "wifi_aps.h"
-#include "web_handlers.h"
 #include "tracing.h"
 #include "NTPtime.h"
 
 #define TRACE_ALL false
-
-boolean wifi_connected       = false;
-boolean wifi_set_connecting  = true;   // need to be able to stop for manual connecting.
 
 // Define some function to setup different parts of the setup process
 
@@ -23,33 +16,6 @@ void setup_serial_communication() {
   Serial.println("Serial communication started, press ? for help");
 }
 
-// Try to connect to one of a couple of WiFi networks
-void handle_wifi() {
-  if (TRACE_ALL) TRACE_IN();
-
-  //WiFi.status() == WL_connected;
-  if (!wifi_connected) {
-    static unsigned long last_update_ms = millis();
-    unsigned long now_ms = millis();
-    if (((now_ms - last_update_ms) > 3000) && (wifi_set_connecting)) {
-      last_update_ms = now_ms;
-
-      if (wifiMulti.run() == WL_CONNECTED ) {
-        wifi_connected = true;
-        Serial.println("SSID: " + WiFi.SSID() + "; IP address: " + WiFi.localIP().toString());
-        setup_web_server();
-      } else {
-        Serial.println(" connection failed");
-      }
-
-    }
-  } else {
-    NTPSetup();
-    handle_requests();
-  }
-
-  if (TRACE_ALL) TRACE_OUT();
-}
 
 
 
@@ -64,13 +30,13 @@ void setup() {
   
   tracing_set_output_on_serial(false);
   setup_wifi_aps();
-  led_control_setup();
+  led_control_setup(eeprom_getLedMatrixWidth(), eeprom_getLedMatrixHeight());
 }
 
 // loop() function -- runs repeatedly as long as board is on ---------------
 
 void loop() {
-  handle_wifi();
+  handle_wifi() ;
   handle_leds();
   handle_serial();
 }
@@ -82,63 +48,60 @@ void handle_serial() {
   static enum serial_input input_on = NO_INPUT;
   
   static int number_of_networks = 0;
-  static struct WifiApEE new_wifi_ap ;
   if (Serial.available() > 0) {
     String command = Serial.readStringUntil(10);
+    static int wifi_selected_id = -1;
 
-    if ( input_on == WIFI_SSID) {
-      long network_selected = command.toInt();
-      if (number_of_networks > network_selected) {
-        Serial.print(" network selected " + String(network_selected));
-        Serial.println(" " + WiFi.SSID(network_selected) + " " + WiFi.RSSI(network_selected));
-        new_wifi_ap.ssid = "" + WiFi.SSID(network_selected);
-        Serial.println("ENTER PASSWORD");
-        input_on = WIFI_PWD;
-      } else {
-        Serial.println(" not available");
-        wifi_set_connecting = true;
-        input_on = NO_INPUT;
-      }
-
-    } else if (input_on == WIFI_PWD) {
-      new_wifi_ap.pwd = "" + command;
-      wifi_ap_add_wifi_ap(new_wifi_ap);
-      wifi_set_connecting = true;
-      Serial.println("----------");
-      Serial.println(" " + new_wifi_ap.ssid + " - " + new_wifi_ap.pwd);
-      input_on = NO_INPUT;
-      
-    } else if (input_on == HEIGHT) {
-      eeprom_setLedMatrixHeight(command.toInt());
-      Serial.println("INPUT WIDTH");
-      input_on = WIDTH;
-      
-    } else if (input_on == WIDTH) {
-      eeprom_setLedMatrixWidth(command.toInt());
-      Serial.println("----------");
-      Serial.println(" aspect (w:h) : " + String(eeprom_getLedMatrixWidth()) + " : " + String(eeprom_getLedMatrixHeight()));
-      eeprom_write();
-      input_on = NO_INPUT;
-
-    } else if (command.equals("wifi")) {
-      wifi_set_connecting = false; // disable connecting, otherwize it will overwrite scanned wifis
+    if (command.equals("wifi")) {
       Serial.println("Scanning WiFi");
-      delay(1000);
-      number_of_networks = WiFi.scanNetworks();
+      number_of_networks = wifi_scan();
       for (int i = 0; i < number_of_networks; i++ ) {
-        Serial.println("" + String(i) + " " + WiFi.SSID(i) + " " + WiFi.RSSI(i));
+        Serial.println("" + String(i) + " " + wifi_get_scanned_ssid(i) + " " + String(wifi_get_scanned_rssi(i)));
       }
       input_on = WIFI_SSID;
       Serial.println("SELECT SSID no");
 
-    } else if (command.equals("list")) {
+    } else if ( input_on == WIFI_SSID) {
+      wifi_selected_id = command.toInt();
+      if (number_of_networks > wifi_selected_id) {
+        Serial.print(" network selected " + String(wifi_selected_id));
+        Serial.println(" " + wifi_get_scanned_ssid(wifi_selected_id) + " " + String(wifi_get_scanned_rssi(wifi_selected_id)));
+        Serial.println("ENTER PASSWORD");
+        input_on = WIFI_PWD;
+      } else {
+        Serial.println(" not available");
+        wifi_add_scanned_ap(-1, "");
+        input_on = NO_INPUT;
+      }
+    } else if (input_on == WIFI_PWD) {
+      wifi_add_scanned_ap(wifi_selected_id, command);
+      Serial.println("----------");
+      Serial.println(" " + wifi_get_scanned_ssid(wifi_selected_id) + " - " + command);
+      Serial.println("----------");
+      input_on = NO_INPUT;
+      
+    } else if (input_on == WIDTH) {
+      eeprom_setLedMatrixWidth(command.toInt());
+      input_on = HEIGHT;
+      Serial.println("INPUT HEIGHT");
+    } else if (input_on == HEIGHT) {
+      eeprom_setLedMatrixHeight(command.toInt());
+      Serial.println("----------");
+      Serial.println(" aspect (w:h) : " + String(eeprom_getLedMatrixWidth()) + " : " + String(eeprom_getLedMatrixHeight()));
+      eeprom_write();
+      led_control_set_led_matrix_size(eeprom_getLedMatrixWidth(), eeprom_getLedMatrixHeight());
+      input_on = NO_INPUT;
+
+    } else if (command.equals("wlist")) {
+      Serial.println("----------");
       Serial.println("Stored SSID + pwds : " + String(eeprom_getNoWifiAps()));
       for (int i = 0; i < eeprom_getNoWifiAps(); i++) {
-        Serial.println(" " + String(i) + " : " + eeprom_getWifiAp(i).ssid + " - " + eeprom_getWifiAp(i).pwd);
+        WifiApEE wifi_ap = eeprom_getWifiAp(i);
+        Serial.println(" " + String(i+1) + " : " + wifi_ap.ssid + " - " + wifi_ap.pwd);
       }
       Serial.println("----------");
 
-    } else if (command.equals("clear")) {
+    } else if (command.equals("wclear")) {
       Serial.println("clearing stored SSID + pwds");
       clear_wifi_apps();
       Serial.println("----------");
@@ -147,17 +110,24 @@ void handle_serial() {
       eeprom_serial();
     } else if (command.equals("eepc")) {
       eeprom_clear();
+      eeprom_serial();
     } else if (command.equals("aspect")) {
-      Serial.println("INPUT HEIGHT");
-      input_on = HEIGHT;
+      Serial.println("INPUT WIDTH");
+      input_on = WIDTH;
+    } else if (command.equals("time")) {
+      Serial.println(" " + getStrTime() + " " + getStrDate());
+    } else if (command.equals("restart")) {
+      ESP.restart();
     } else  {
       Serial.println("commands: ");
       Serial.println("  wifi   : scan available wifi and select");
-      Serial.println("  list   : list stored ssid + pwd");
-      Serial.println("  clear  : clear stored ssid + pwd");
+      Serial.println("  wlist  : list stored ssid + pwd");
+      Serial.println("  wclear : clear stored ssid + pwd");
       Serial.println("  eepl   : list eeprom stored data");
       Serial.println("  eepc   : clear eeprom");
-      Serial.println("  aspect : set matrix aspect (height / width)");
+      Serial.println("  aspect : set matrix aspect (width / height)");
+      Serial.println("  time   : show time");
+      Serial.println("  restart: restart micro controller");
     }
   }
 

@@ -36,17 +36,23 @@ static const uint8_t D10  = 1;
   int led_control_matrix_size = led_control_matrix_width * led_control_matrix_height;
 #endif
 
-Adafruit_NeoMatrix led_matrix = Adafruit_NeoMatrix(led_control_matrix_width, led_control_matrix_height, led_control_matrix_pin,
+  
+static Adafruit_NeoMatrix led_matrix = Adafruit_NeoMatrix(led_control_matrix_width, led_control_matrix_height, led_control_matrix_pin,
   NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
   NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
 
 
-void led_control_setup() {
+void led_control_setup(int width, int height) {
   TRACE_IN();
   
   pinMode(A0, INPUT); 
   pinMode(led_control_matrix_pin, OUTPUT);
-  led_control_set_led_matrix_size(led_control_matrix_width, led_control_matrix_height);
+  if (width == 0)  { width = 16; }
+  if (height == 0) { height = 16; }
+
+  led_control_set_led_matrix_size(width, height);
+
+  
   led_matrix.begin();
   led_matrix.setTextWrap(false);
   led_matrix.setBrightness(255);
@@ -56,6 +62,8 @@ void led_control_setup() {
 
 void led_control_set_led_matrix_size(int width, int height) {
   TRACE_IN();
+
+  
   
   led_control_matrix_width = width;
   led_control_matrix_height = height;

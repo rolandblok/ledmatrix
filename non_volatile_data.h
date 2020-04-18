@@ -19,7 +19,7 @@ int  eeprom_getLedMatrixHeight();
 void eeprom_setLedMatrixWidth(int w);
 int  eeprom_getLedMatrixWidth();
 
-void   eeprom_addWifiAp(WifiApEE wifi_ap);
+void   eeprom_addWifiAp(String ssid, String pwd);
 int    eeprom_getNoWifiAps();
 WifiApEE eeprom_getWifiAp(int id);
 void   eeprom_clearWifiAps();

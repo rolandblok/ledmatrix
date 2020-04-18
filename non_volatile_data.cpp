@@ -36,12 +36,14 @@ EepromMem eeprom_mem_glb;
 // ===============
 void eeprom_setLedMatrixHeight(int h) {
   eeprom_mem_glb.led_matrix_height = h;
+  eeprom_write();
 }
 int  eeprom_getLedMatrixHeight() {
   return eeprom_mem_glb.led_matrix_height;
 }
 void eeprom_setLedMatrixWidth(int w) {
   eeprom_mem_glb.led_matrix_width = w;
+  eeprom_write();
 }
 int  eeprom_getLedMatrixWidth() {
   return eeprom_mem_glb.led_matrix_width;
@@ -51,18 +53,20 @@ int    eeprom_getNoWifiAps() {
   return eeprom_mem_glb.no_wifi_aps;
 }
 
-void   eeprom_addWifiAp(WifiApEE wifi_ap) {
+void   eeprom_addWifiAp(String ssid, String pwd) {
   if ( eeprom_mem_glb.no_wifi_aps == 5 ) {
     eeprom_mem_glb.no_wifi_aps = 4; //we overwrite the last one :-)
   }
-  wifi_ap.ssid.toCharArray(eeprom_mem_glb.wifi_aps[eeprom_mem_glb.no_wifi_aps].ssid_buf, EEPC_WIFI_AP_SSID_MAX_LEN);
-  wifi_ap.pwd.toCharArray(eeprom_mem_glb.wifi_aps[eeprom_mem_glb.no_wifi_aps].pwd_buf, EEPC_WIFI_AP_PWD_MAX_LEN);
+  ssid.toCharArray(eeprom_mem_glb.wifi_aps[eeprom_mem_glb.no_wifi_aps].ssid_buf, EEPC_WIFI_AP_SSID_MAX_LEN);
+  pwd.toCharArray(eeprom_mem_glb.wifi_aps[eeprom_mem_glb.no_wifi_aps].pwd_buf, EEPC_WIFI_AP_PWD_MAX_LEN);
+  
   eeprom_mem_glb.no_wifi_aps++;
+  eeprom_write();
 }
 
 WifiApEE eeprom_getWifiAp(int id) {
   WifiApEE wifi_app = {};
-  if ( (id > 0) && (id < eeprom_mem_glb.no_wifi_aps)) {
+  if ( (id >= 0) && (id < eeprom_mem_glb.no_wifi_aps)) {
     wifi_app.ssid = String(eeprom_mem_glb.wifi_aps[id].ssid_buf);
     wifi_app.pwd  = String(eeprom_mem_glb.wifi_aps[id].pwd_buf);
   }
@@ -71,6 +75,7 @@ WifiApEE eeprom_getWifiAp(int id) {
 
 void eeprom_clearWifiAps() {
   eeprom_mem_glb.no_wifi_aps = 0;
+  eeprom_write();
 }
 
 byte checksum(EepromMem eeprom_memo_arg) {
@@ -81,12 +86,16 @@ byte checksum(EepromMem eeprom_memo_arg) {
  *  Use this in debugging to reset your eeprom
  */
 boolean eeprom_clear() {
-  EEPROM.begin(sizeof(eeprom_mem_glb));
-  for (int i = 0; i < sizeof(eeprom_mem_glb); i++) {
-    EEPROM.write(i, 0);
-  }
-  EEPROM.commit();
-  EEPROM.end();
+  EepromMem eeprom_mem_tmp = {};
+  eeprom_mem_glb = eeprom_mem_tmp;
+  eeprom_write();
+  
+//  EEPROM.begin(sizeof(eeprom_mem_glb));
+//  for (int i = 0; i < sizeof(eeprom_mem_glb); i++) {
+//    EEPROM.write(i, 0);
+//  }
+//  EEPROM.commit();
+//  EEPROM.end();
 
   return true;
 }
@@ -123,13 +132,15 @@ boolean eeprom_write() {
 }
 
 void eeprom_serial() {
-  Serial.println("led_matrix_width  " + eeprom_mem_glb.led_matrix_width );
-  Serial.println("led_matrix_height " + eeprom_mem_glb.led_matrix_height);
-  Serial.println("no_wifi_aps " + eeprom_mem_glb.no_wifi_aps);
+  Serial.println("----------");
+  Serial.println("led_matrix_width  " + String(eeprom_mem_glb.led_matrix_width) );
+  Serial.println("led_matrix_height " + String(eeprom_mem_glb.led_matrix_height));
+  Serial.println("n.o. wifi aps " + String(eeprom_mem_glb.no_wifi_aps));
   for (int i = 0; i < eeprom_mem_glb.no_wifi_aps; i ++) {
-    Serial.println(" " + String(i) + " " +String(eeprom_mem_glb.wifi_aps[i].ssid_buf));
+    Serial.println(" " + String(i+1) + " " +String(eeprom_mem_glb.wifi_aps[i].ssid_buf));
     Serial.println("     " + String(eeprom_mem_glb.wifi_aps[i].pwd_buf));
   }
+  Serial.println("----------");
 }
 
 
