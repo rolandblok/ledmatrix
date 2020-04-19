@@ -6,7 +6,7 @@
 #include "colors.h"
 #include "pacmen_data.h"
 
-void update_pacman(Adafruit_NeoMatrix &matrix, Timer &timer, Colors &colors, int width, int height);
+void update_pacman(Adafruit_NeoMatrix *matrix, Timer &timer, Colors &colors, int width, int height);
 
 #define RGBA_FRAME_COUNT 1
 #define RGBA_FRAME_WIDTH 8

@@ -36,11 +36,17 @@ static const uint8_t D10  = 1;
   int led_control_matrix_size = led_control_matrix_width * led_control_matrix_height;
 #endif
 
-  
-static Adafruit_NeoMatrix led_matrix = Adafruit_NeoMatrix(led_control_matrix_width, led_control_matrix_height, led_control_matrix_pin,
-  NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
-  NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
+static Adafruit_NeoMatrix *led_matrix = NULL;  
 
+void create_adafruit_object(int width, int height) {
+  if (led_matrix != NULL) {
+    delete led_matrix;
+  }
+  
+  led_matrix = new Adafruit_NeoMatrix(width, height, led_control_matrix_pin,
+    NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
+    NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
+}
 
 void led_control_setup(int width, int height) {
   TRACE_IN();
@@ -50,12 +56,14 @@ void led_control_setup(int width, int height) {
   if (width == 0)  { width = 16; }
   if (height == 0) { height = 16; }
 
+  create_adafruit_object(width, height);
+
   led_control_set_led_matrix_size(width, height);
 
   
-  led_matrix.begin();
-  led_matrix.setTextWrap(false);
-  led_matrix.setBrightness(255);
+  led_matrix->begin();
+  led_matrix->setTextWrap(false);
+  led_matrix->setBrightness(255);
   
   TRACE_OUT();
 }
@@ -69,25 +77,25 @@ void led_control_set_led_matrix_size(int width, int height) {
   led_control_matrix_height = height;
   led_control_matrix_size = width * height;
 
-  led_matrix.begin();
+  led_matrix->begin();
   
   for (int c = 1; c <= led_control_matrix_width; c++) {
     for (int r = 1; r <= led_control_matrix_height; r++) {
       if ((c+r)%5 == 0) {
-        led_matrix.drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(255, 255, 255));
+        led_matrix->drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(255, 255, 255));
       } else if ((c+r)%5 == 1) {
-        led_matrix.drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(255, 0, 0));
+        led_matrix->drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(255, 0, 0));
       } else if ((c+r)%5 == 2) {
-        led_matrix.drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 255, 0));
+        led_matrix->drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 255, 0));
       } else if ((c+r)%5 == 3) {
-        led_matrix.drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 0, 255));
+        led_matrix->drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 0, 255));
       } else if ((c+r)%5 == 4) {
-        led_matrix.drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 0, 0));
+        led_matrix->drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 0, 0));
       }
     }
   }
 
-  led_matrix.show();
+  led_matrix->show();
   
   TRACE_OUT();
 }
@@ -121,7 +129,7 @@ void led_control_update()
 {
   TRACE_IN();
 
-  led_matrix.clear();
+  led_matrix->clear();
   
   Timer timer = Timer(5.0);
   
@@ -131,14 +139,14 @@ void led_control_update()
   String tijd = getStrTime();
   int16_t image_width = tijd.length()*6;
   int16_t cursor_location = timer.get_location_back_and_forth(led_control_matrix_width, image_width, 1);
-  led_matrix.setTextColor(colors.get_matrix_color(255,0,0));
-  led_matrix.setCursor(cursor_location, 1);
-  led_matrix.setTextSize(1);
-  led_matrix.print(tijd);
+  led_matrix->setTextColor(colors.get_matrix_color(255,0,0));
+  led_matrix->setCursor(cursor_location, 1);
+  led_matrix->setTextSize(1);
+  led_matrix->print(tijd);
 
   update_pacman(led_matrix, timer, colors, led_control_matrix_width, led_control_matrix_height);
 
-  led_matrix.show();
+  led_matrix->show();
   
   TRACE_OUT();
 }
