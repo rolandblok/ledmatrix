@@ -51,7 +51,7 @@ void create_adafruit_object(int width, int height) {
   led_matrix->setTextWrap(false);
   led_matrix->begin();
 
-    
+  pacman_create_sprites();
 }
 
 void led_control_setup(int width, int height) {
@@ -139,7 +139,7 @@ void led_control_update()
   int16_t image_width = tijd.length()*6;
   int16_t cursor_location = timer.get_location_back_and_forth(led_control_matrix_width, image_width, 1);
   led_matrix->setTextColor(colors.get_matrix_color(255,0,0));
-  led_matrix->setCursor(cursor_location, 1);
+  led_matrix->setCursor(cursor_location, 0);
   led_matrix->setTextSize(1);
   led_matrix->print(tijd);
 
