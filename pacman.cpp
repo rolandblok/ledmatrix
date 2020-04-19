@@ -26,6 +26,11 @@ void pacman_create_sprites() {
   sprites_glb[SPRITES_RGBA].height    = RGBA_FRAME_HEIGHT;
   sprites_glb[SPRITES_RGBA].data      = (uint32_t*)rgba_data;
 
+  sprites_glb[SPRITES_DOG].no_frames = DOG_FRAME_COUNT;
+  sprites_glb[SPRITES_DOG].width     = DOG_FRAME_WIDTH;
+  sprites_glb[SPRITES_DOG].height    = DOG_FRAME_HEIGHT;
+  sprites_glb[SPRITES_DOG].data      = (uint32_t*)dog_data;
+
   sprites_glb[SPRITES_PAKMEN].no_frames = PAKMEN_FRAME_COUNT;
   sprites_glb[SPRITES_PAKMEN].width     = PAKMEN_FRAME_WIDTH;
   sprites_glb[SPRITES_PAKMEN].height    = PAKMEN_FRAME_HEIGHT;
@@ -91,21 +96,18 @@ void draw_sprite(Adafruit_NeoMatrix *matrix, Colors &colors, int16_t location_x,
   int s      = width * height;
   int nof    = sprites_glb[sprite_id].no_frames;
  
-  Serial.println(" frame " + String(frame) );
   if ((frame < 0)) {
     Serial.println(" error : invalid frame request " + String(frame));
     frame = 0;
   } else {
     frame = (frame % nof);
   }
-  Serial.println("    frame " + String(frame) );
   
   for (int16_t h = 0; h < height; h++) {
     for (int16_t w = 0; w < width; w++) {
       uint32_t piksel = *(sprites_glb[sprite_id].data +(frame * s) + ((h*width)+w));
       
       matrix->drawPixel(location_x+w, location_y+h, colors.get_matrix_color_rgba(piksel));
-
     }
   }
 
