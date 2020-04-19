@@ -9,7 +9,7 @@ typedef struct sprite {
   int no_frames;
   int width;
   int height;
-  uint32_t*** data;
+  uint32_t** data;
 } sprite;
 
 
@@ -22,7 +22,7 @@ void create_sprites() {
   sprites_glb[SPRITES_RGBA].no_frames = RGBA_FRAME_COUNT;
   sprites_glb[SPRITES_RGBA].width     = RGBA_FRAME_WIDTH;
   sprites_glb[SPRITES_RGBA].height    = RGBA_FRAME_HEIGHT;
-//  sprites_glb[SPRITES_RGBA].data      = &rgba_data;
+  sprites_glb[SPRITES_RGBA].data      = (uint32_t**)rgba_data;
 }
 
 #define ROUND(x) static_cast<uint8_t>(x+0.5)
