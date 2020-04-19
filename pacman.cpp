@@ -12,8 +12,10 @@ typedef struct sprite {
   uint32_t* data;
 } sprite;
 
+#define WHITE_SPACE_BETWEEN_SPRITES 2
 
 sprite sprites_glb[SPRITES_COUNT];
+int    draw_all_width_glb ;
 
 /**
  * I don't know how to create without function yet, easier import from piskel
@@ -34,6 +36,12 @@ void pacman_create_sprites() {
   sprites_glb[SPRITES_GHOST].height    = GHOST_FRAME_HEIGHT;
   sprites_glb[SPRITES_GHOST].data      = (uint32_t*)ghost_data;
 
+  draw_all_width_glb = WHITE_SPACE_BETWEEN_SPRITES * (SPRITES_COUNT-1);
+  for (int sprite_nr = (int)SPRITES_START; sprite_nr < (int)SPRITES_COUNT; sprite_nr++) {
+    draw_all_width_glb += sprites_glb[sprite_nr].width;
+  }
+  
+  
 }
 
 #define ROUND(x) static_cast<uint8_t>(x+0.5)
@@ -76,17 +84,21 @@ int16_t red = Adafruit_NeoMatrix::Color(255,0,0);
 int16_t white = Adafruit_NeoMatrix::Color(255,255,255);
 
 
-void draw_sprite(Adafruit_NeoMatrix *matrix, Colors &colors, int16_t location_x, int16_t location_y, SPRITES_ENUM sprite_id, int frame) {
+void draw_sprite(Adafruit_NeoMatrix *matrix, Colors &colors, int16_t location_x, int16_t location_y, SPRITES_ENUM sprite_id, int16_t frame) {
 
   int width  = sprites_glb[sprite_id].width;
   int height = sprites_glb[sprite_id].height;
   int s      = width * height;
   int nof    = sprites_glb[sprite_id].no_frames;
  
-  if ((frame < 0) || (frame > nof)) {
+  Serial.println(" frame " + String(frame) );
+  if ((frame < 0)) {
     Serial.println(" error : invalid frame request " + String(frame));
     frame = 0;
+  } else {
+    frame = (frame % nof);
   }
+  Serial.println("    frame " + String(frame) );
   
   for (int16_t h = 0; h < height; h++) {
     for (int16_t w = 0; w < width; w++) {
@@ -150,17 +162,22 @@ void draw_cat(Adafruit_NeoMatrix *matrix, Timer &timer, Colors &colors, int16_t 
 }
 
 
-void update_pacman(Adafruit_NeoMatrix *matrix, Timer &timer, Colors &colors, int width, int height) {
+void update_pacman(Adafruit_NeoMatrix *matrix, Timer &timer, Colors &colors, int matrix_width, int matrix_height) {
   TRACE_IN();
 
-  int width_of_drawing = 5 + 3 + 5 + 3 + 5;
-  int drawing_width = 21;
-  int16_t time_in_period = timer.time_in_period(width+drawing_width+1);
-
+  int16_t time_in_period = timer.time_in_period(matrix_width + draw_all_width_glb + 1);
+  int16_t location_x = -draw_all_width_glb + time_in_period;
+  //Serial.println(" time_in_period " + String(time_in_period));
+    
+  for (int sprite_nr = (int)SPRITES_START; sprite_nr < (int)SPRITES_COUNT; sprite_nr++) {
+    draw_sprite(matrix, colors, location_x, 8, (SPRITES_ENUM)sprite_nr, time_in_period);
+    location_x += sprites_glb[sprite_nr].width + WHITE_SPACE_BETWEEN_SPRITES;
+  }
   
-  draw_sprite(matrix, colors, -drawing_width + time_in_period, 8, SPRITES_RGBA, 0);
-  draw_sprite(matrix, colors, -drawing_width + time_in_period + 10, 8, SPRITES_GHOST, 0);
-  draw_sprite(matrix, colors, -drawing_width + time_in_period + 20, 8, SPRITES_PAKMEN, 0);
+  //int drawing_width = 21;
+  //draw_sprite(matrix, colors, -drawing_width + time_in_period, 8, SPRITES_RGBA, time_in_period);
+  //draw_sprite(matrix, colors, -drawing_width + time_in_period + 10, 8, SPRITES_GHOST, time_in_period);
+  //draw_sprite(matrix, colors, -drawing_width + time_in_period + 20, 8, SPRITES_PAKMEN, time_in_period);
   
   //draw_cat(matrix, timer, colors, -drawing_width + time_in_period, 10);
   //draw_pacman(matrix, timer, colors, -drawing_width+ 5+3 + time_in_period, 10);
