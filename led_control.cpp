@@ -46,6 +46,12 @@ void create_adafruit_object(int width, int height) {
   led_matrix = new Adafruit_NeoMatrix(width, height, led_control_matrix_pin,
     NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
     NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
+
+  led_matrix->setBrightness(255);
+  led_matrix->setTextWrap(false);
+  led_matrix->begin();
+
+    
 }
 
 void led_control_setup(int width, int height) {
@@ -57,11 +63,6 @@ void led_control_setup(int width, int height) {
   if (height == 0) { height = 16; }
 
   led_control_set_led_matrix_size(width, height);
-
-  
-  led_matrix->begin();
-  led_matrix->setTextWrap(false);
-  led_matrix->setBrightness(255);
   
   TRACE_OUT();
 }
@@ -70,13 +71,11 @@ void led_control_set_led_matrix_size(int width, int height) {
   TRACE_IN();
 
   create_adafruit_object(width, height);
-
   
   led_control_matrix_width = width;
   led_control_matrix_height = height;
   led_control_matrix_size = width * height;
 
-  led_matrix->begin();
   
   for (int c = 1; c <= led_control_matrix_width; c++) {
     for (int r = 1; r <= led_control_matrix_height; r++) {
