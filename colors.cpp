@@ -37,6 +37,6 @@ int16_t Colors::get_matrix_color_rgba(uint32 rgba) {
   int r = (rgba >> (8*0)) & 0xff ;
   int g = (rgba >> (8*1)) & 0xff ;
   int b = (rgba >> (8*2)) & 0xff ;
-  return Adafruit_NeoMatrix::Color(r,g,b);
-  //return this->get_matrix_color(r,g,b);
+  //return Adafruit_NeoMatrix::Color(r,g,b);
+  return this->get_matrix_color(r,g,b);
 }

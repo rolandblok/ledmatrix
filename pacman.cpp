@@ -9,7 +9,7 @@ typedef struct sprite {
   int no_frames;
   int width;
   int height;
-  uint32_t** data;
+  uint32_t* data;
 } sprite;
 
 
@@ -22,17 +22,17 @@ void pacman_create_sprites() {
   sprites_glb[SPRITES_RGBA].no_frames = RGBA_FRAME_COUNT;
   sprites_glb[SPRITES_RGBA].width     = RGBA_FRAME_WIDTH;
   sprites_glb[SPRITES_RGBA].height    = RGBA_FRAME_HEIGHT;
-  sprites_glb[SPRITES_RGBA].data      = (uint32_t**)rgba_data;
+  sprites_glb[SPRITES_RGBA].data      = (uint32_t*)rgba_data;
 
   sprites_glb[SPRITES_PAKMEN].no_frames = PAKMEN_FRAME_COUNT;
   sprites_glb[SPRITES_PAKMEN].width     = PAKMEN_FRAME_WIDTH;
   sprites_glb[SPRITES_PAKMEN].height    = PAKMEN_FRAME_HEIGHT;
-  sprites_glb[SPRITES_PAKMEN].data      = (uint32_t**)pakmen_data;
+  sprites_glb[SPRITES_PAKMEN].data      = (uint32_t*)pakmen_data;
 
   sprites_glb[SPRITES_GHOST].no_frames = GHOST_FRAME_COUNT;
   sprites_glb[SPRITES_GHOST].width     = GHOST_FRAME_WIDTH;
   sprites_glb[SPRITES_GHOST].height    = GHOST_FRAME_HEIGHT;
-  sprites_glb[SPRITES_GHOST].data      = (uint32_t**)ghost_data;
+  sprites_glb[SPRITES_GHOST].data      = (uint32_t*)ghost_data;
 
 }
 
@@ -90,11 +90,10 @@ void draw_sprite(Adafruit_NeoMatrix *matrix, Colors &colors, int16_t location_x,
   
   for (int16_t h = 0; h < height; h++) {
     for (int16_t w = 0; w < width; w++) {
-      uint32_t piksel = sprites_glb[sprite_id].data[frame][(h*width)+w];
+      uint32_t piksel = *(sprites_glb[sprite_id].data +(frame * s) + ((h*width)+w));
       
       matrix->drawPixel(location_x+w, location_y+h, colors.get_matrix_color_rgba(piksel));
-      //matrix->drawPixel(location_x+w, location_y+h, Adafruit_NeoMatrix::Color(255,0,0));
-          
+
     }
   }
 
@@ -159,11 +158,13 @@ void update_pacman(Adafruit_NeoMatrix *matrix, Timer &timer, Colors &colors, int
   int16_t time_in_period = timer.time_in_period(width+drawing_width+1);
 
   
-  draw_sprite(matrix, colors, -drawing_width + time_in_period, 8, SPRITES_PAKMEN, 0);
+  draw_sprite(matrix, colors, -drawing_width + time_in_period, 8, SPRITES_RGBA, 0);
+  draw_sprite(matrix, colors, -drawing_width + time_in_period + 10, 8, SPRITES_GHOST, 0);
+  draw_sprite(matrix, colors, -drawing_width + time_in_period + 20, 8, SPRITES_PAKMEN, 0);
   
   //draw_cat(matrix, timer, colors, -drawing_width + time_in_period, 10);
-  draw_pacman(matrix, timer, colors, -drawing_width+ 5+3 + time_in_period, 10);
-  draw_ghost(matrix, timer, colors, -drawing_width+ 5+3+5+3 + time_in_period, 10, matrix->Color(0,0,255));
+  //draw_pacman(matrix, timer, colors, -drawing_width+ 5+3 + time_in_period, 10);
+  //draw_ghost(matrix, timer, colors, -drawing_width+ 5+3+5+3 + time_in_period, 10, matrix->Color(0,0,255));
 
   TRACE_OUT();
 }
