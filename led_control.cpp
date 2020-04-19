@@ -56,8 +56,6 @@ void led_control_setup(int width, int height) {
   if (width == 0)  { width = 16; }
   if (height == 0) { height = 16; }
 
-  create_adafruit_object(width, height);
-
   led_control_set_led_matrix_size(width, height);
 
   
@@ -71,7 +69,8 @@ void led_control_setup(int width, int height) {
 void led_control_set_led_matrix_size(int width, int height) {
   TRACE_IN();
 
-  
+  create_adafruit_object(width, height);
+
   
   led_control_matrix_width = width;
   led_control_matrix_height = height;
@@ -96,6 +95,7 @@ void led_control_set_led_matrix_size(int width, int height) {
   }
 
   led_matrix->show();
+  delay(1000);
   
   TRACE_OUT();
 }
