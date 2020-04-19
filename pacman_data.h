@@ -2,10 +2,26 @@
 #ifndef PACMAN_DATA
 #define PACMAN_DATA
 
+// https://www.piskelapp.com/
+
+enum pacman_sprites {
+  SPRITES_START = -1,
+  SPRITES_RGBA,
+  SPRITES_PAKMEN,
+  SPRITES_GHOST,
+
+  SPRITES_COUNT
+};
+
+
+
 
 
 /* Piskel data for "RGBA" */
-static const uint32_t rgba_data[2][64] = {
+#define RGBA_FRAME_COUNT 1
+#define RGBA_FRAME_WIDTH 8
+#define RGBA_FRAME_HEIGHT 8
+static const uint32_t rgba_data[1][64] = {
 {
 0xff0000ff, 0xff0000ff, 0xff0000ff, 0xff0000ff, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 
 0xff0000ff, 0xff0000ff, 0xff0000ff, 0xff0000ff, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 
@@ -19,7 +35,9 @@ static const uint32_t rgba_data[2][64] = {
 };
 
 
-
+#define PAKMEN_FRAME_COUNT 2 
+#define PAKMEN_FRAME_WIDTH 8
+#define PAKMEN_FRAME_HEIGHT 8
 static const uint32_t pakmen_data[2][64] = {
 {
 0x00000000, 0x00000000, 0xff00f6fd, 0xff00f6fd, 0xff00f6fd, 0xff00f6fd, 0x00000000, 0x00000000, 
@@ -43,6 +61,9 @@ static const uint32_t pakmen_data[2][64] = {
 }
 };
 
+#define GHOST_FRAME_COUNT 2 
+#define GHOST_FRAME_WIDTH 8
+#define GHOST_FRAME_HEIGHT 8
 static const uint32_t ghost_data[2][64] = {
 {
 0x00000000, 0x00000000, 0xffff0080, 0xffff0080, 0xffff0080, 0xffff0080, 0x00000000, 0x00000000, 

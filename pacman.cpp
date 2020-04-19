@@ -1,7 +1,29 @@
 #include <Arduino.h>
 
 #include "pacman.h"
+#include "pacman_data.h"
 #include "tracing.h"
+
+
+typedef struct sprite {
+  int no_frames;
+  int width;
+  int height;
+  uint32_t*** data;
+} sprite;
+
+
+sprite sprites_glb[SPRITES_COUNT];
+
+/**
+ * I don't know how to create without function yet, easier import from piskel
+ */
+void create_sprites() {
+  sprites_glb[SPRITES_RGBA].no_frames = RGBA_FRAME_COUNT;
+  sprites_glb[SPRITES_RGBA].width     = RGBA_FRAME_WIDTH;
+  sprites_glb[SPRITES_RGBA].height    = RGBA_FRAME_HEIGHT;
+//  sprites_glb[SPRITES_RGBA].data      = &rgba_data;
+}
 
 #define ROUND(x) static_cast<uint8_t>(x+0.5)
 #define ABS(x) ((x)>0?(x):-(x))
