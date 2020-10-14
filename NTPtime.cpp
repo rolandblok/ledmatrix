@@ -138,7 +138,6 @@ time_t getNtpTime() {
 }
 
 String getStrTime() {
-  
   return (trail10print(hour(),true) + ":" + trail10print(minute(),true) + ":" + trail10print(second(),true) );
 }
 String getStrDate() {

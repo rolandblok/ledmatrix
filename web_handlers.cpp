@@ -135,7 +135,7 @@ void handle_set_data() {
       int y = ys.toInt();
       uint32_t color = string_to_color(server.arg("value"));
       led_control_set_cached_color(x, y, color);
-      led_control_update();
+      //led_control_update();
       server.send(200, "​text/plain", "ok");
       return;
     }

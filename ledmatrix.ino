@@ -36,6 +36,7 @@ void setup() {
 // loop() function -- runs repeatedly as long as board is on ---------------
 
 void loop() {
+  
   handle_wifi() ;
   handle_leds();
   handle_serial();
@@ -137,16 +138,27 @@ void handle_serial() {
 void handle_leds() {
   if (TRACE_ALL) TRACE_IN();
 
-  static unsigned long last_update = millis();
-  int current = millis();
+  static unsigned long last_update_ms = millis();
+  static unsigned long FPS_update_ms = millis();
+  static unsigned long FPS = 0;
   
-  if (current - last_update < 40) {
+  int current_time_ms = millis();
+  
+  if (current_time_ms - last_update_ms < 4) {
     if (TRACE_ALL) TRACE_OUT();
-    return;
+    
+  } else {
+    
+    led_control_update(current_time_ms);
+    last_update_ms = current_time_ms;
+
+    FPS ++;
+    if (current_time_ms - FPS_update_ms > 1000) {
+      Serial.println(" FPS : " + String(FPS));
+      FPS = 0;
+      FPS_update_ms = current_time_ms;
+    }
+    
+    if (TRACE_ALL) TRACE_OUT();
   }
-
-  led_control_update();
-  last_update = current;
-
-  if (TRACE_ALL) TRACE_OUT();
 }

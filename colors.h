@@ -10,7 +10,9 @@ class Colors
       Colors(double brightness);
 
       int16_t get_matrix_color(int r, int g, int b);
-      int16_t get_matrix_color_rgba(uint32 rgba);
+      int16_t get_matrix_color_rgba(uint32 rgba, int *a);
+      
+     
 };
  
 #endif
