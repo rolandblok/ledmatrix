@@ -38,8 +38,8 @@ void create_adafruit_object(int width, int height) {
   }
   
   led_matrix = new Adafruit_NeoMatrix(width, height, led_control_matrix_pin,
-//    NEO_MATRIX_TOP     + NEO_MATRIX_RIGHT +  // Right : big pannel
-    NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +  // LEFT : small pannel
+    NEO_MATRIX_TOP     + NEO_MATRIX_RIGHT +  // Right : big pannel
+//    NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +  // LEFT : small pannel
     NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
 
   led_matrix->setBrightness(255);
@@ -142,26 +142,30 @@ void led_control_update(unsigned long current_time_ms)
     double hue_back_f = (hue_clock_f + 0.5);
     if (hue_back_f > 1.0)  (hue_back_f -= 1.0);
 
-    double hue_back_g = (hue_clock_f + 0.33);
-    if (hue_back_g > 1.0)  (hue_back_g -= 1.0);
-    double hue_back_b = (hue_clock_f + 0.66);
-    if (hue_back_b > 1.0)  (hue_back_b -= 1.0);
+//    double hue_back_g = (hue_clock_f + 0.33);
+//    if (hue_back_g > 1.0)  (hue_back_g -= 1.0);
+//    double hue_back_b = (hue_clock_f + 0.66);
+//    if (hue_back_b > 1.0)  (hue_back_b -= 1.0);
 
 
-    //Serial.print(" hue_back_f " + String(hue_back_f) + " " + String(65535L*hue_back_f));
-    //Serial.println(" color " + String(Adafruit_NeoMatrix::ColorHSV(65535L*hue_back_f),HEX));
-    //led_matrix->fillScreen(Adafruit_NeoMatrix::gamma32(Adafruit_NeoMatrix::ColorHSV(65535L * hue_clock_f)));
+    uint32_t c = Adafruit_NeoMatrix::ColorHSV((uint16_t)(65535L * hue_clock_f), 255, 50);
+    int dummy = 0;
+    uint16_t cc = colors.get_matrix_color_rgba(c, &dummy);
+
+//    Serial.print(" hue_back_f " + String(hue_clock_f) + " " + String(65535L*hue_clock_f) + " " + (uint16_t)(65535L * hue_clock_f));
+//    Serial.println(" color " + String(Adafruit_NeoMatrix::ColorHSV((uint16_t)(65535L * hue_clock_f)),HEX));
+    led_matrix->fillScreen(cc);
     //led_matrix->fillScreen(Adafruit_NeoMatrix::gamma32(Adafruit_NeoMatrix::Color(55*hue_clock_f,55*hue_back_g,55 * hue_back_b)));
     
      
-     uint32_t piksel = Adafruit_NeoMatrix::Color(255.0*hue_clock_f,255.0*hue_back_g,255.0 * hue_back_b);
-    Serial.println(" hue_clock_f " + String(hue_clock_f,4 ) + " color " + String(piksel,HEX));
+//     uint32_t piksel = Adafruit_NeoMatrix::Color(255.0*hue_clock_f,255.0*hue_back_g,255.0 * hue_back_b);
+//    Serial.println(" hue_clock_f " + String(hue_clock_f,4 ) + " color " + String(piksel,HEX));
   
-    for (int16_t h = 0; h < led_control_matrix_height; h++) {
-      for (int16_t w = 0; w < led_control_matrix_width; w++) {
-        led_matrix->drawPixel(w, h, piksel);
-      }
-    }
+//    for (int16_t h = 0; h < led_control_matrix_height; h++) {
+//      for (int16_t w = 0; w < led_control_matrix_width; w++) {
+//        led_matrix->drawPixel(w, h, piksel);
+//      }
+//    }
  
     
     // the big led pannel:
