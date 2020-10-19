@@ -107,7 +107,7 @@ void led_control_update(unsigned long current_time_ms)
   
   int potentiometer = analogRead(A0);
   Colors colors = Colors(potentiometer/1024.0);
-  //Colors colors = Colors(1);
+  //Colors colors = Colors(1);  // use if no potmeter available
 
     
   String tijd = getStrTime();
@@ -129,14 +129,38 @@ void led_control_update(unsigned long current_time_ms)
 
     // Create time
     div_t hour10 = div(hour(), 10);
-    sprite_draw_sprite(led_matrix, colors, 1, 1, SPRITES_NUMBERS_3_7, hour10.quot);
-    sprite_draw_sprite(led_matrix, colors, 5, 1, SPRITES_NUMBERS_3_7, hour10.rem);
+    sprite_draw_sprite(led_matrix, colors, 1, 1, SPRITES_NUMBERS_3_5, hour10.quot);
+    sprite_draw_sprite(led_matrix, colors, 5, 1, SPRITES_NUMBERS_3_5, hour10.rem);
 
     div_t minute10 = div(minute(), 10);
-    sprite_draw_sprite(led_matrix, colors, 6, 8, SPRITES_NUMBERS_3_7, minute10.quot);
-    sprite_draw_sprite(led_matrix, colors, 10, 8, SPRITES_NUMBERS_3_7, minute10.rem);
+    sprite_draw_sprite(led_matrix, colors, 6, 8, SPRITES_NUMBERS_3_5, minute10.quot);
+    sprite_draw_sprite(led_matrix, colors, 10, 8, SPRITES_NUMBERS_3_5, minute10.rem);
 
     sprite_disable_replacement_color();
+
+    // ======================
+    // draw pakmen and ghosts.
+    static unsigned long STEP_TIME_MS = 250;
+    static unsigned long last_update_time_ms = 0;
+    static int bottom_sprite_position = -3*(7+2);
+    if (bottom_sprite_position == 15) {
+      bottom_sprite_position = -3*(7+2);
+    }
+    if (current_time_ms > (last_update_time_ms + STEP_TIME_MS)) {
+      last_update_time_ms = current_time_ms;
+      bottom_sprite_position ++;
+    }
+    int sprite_index = current_time_ms / (STEP_TIME_MS);
+    double hue_ghost_f = ((double)(current_time_ms % 1000)) / 1000.0;
+    uint32_t c32_ghost = colors.ColorHSV_32((uint16_t)(65535L * hue_ghost_f), 255, 255);
+    sprite_set_replacement_color(0xFFFFFFFF , c32_ghost);
+    sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 0, 7, SPRITES_PEKMEN_7x7, sprite_index);
+    sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 9, 7, SPRITES_SPOOK_PAARS_7x7, sprite_index);
+    sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 18, 7, SPRITES_SPOOK_WIT_7x7, sprite_index);
+    sprite_disable_replacement_color();
+
+  
+    
 
     
   } else if (led_control_matrix_aspect == 1) {
@@ -160,6 +184,11 @@ void led_control_update(unsigned long current_time_ms)
     sprite_update_sprites(led_matrix, timer, colors, led_control_matrix_width, led_control_matrix_height, 0);
 
   }
+
+  
+
+
+  
   
   led_matrix->show();
 

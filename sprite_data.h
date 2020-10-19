@@ -114,13 +114,13 @@ static const uint32_t ghost_data[4][64] = {
 }
 };
 
-#define NUMBERS_3_7_FRAME_COUNT 10
-#define NUMBERS_3_7_FRAME_WIDTH 3
-#define NUMBERS_3_7_FRAME_HEIGHT 5
+#define NUMBERS_3_5_FRAME_COUNT 10
+#define NUMBERS_3_5_FRAME_WIDTH 3
+#define NUMBERS_3_5_FRAME_HEIGHT 5
 
 /* Piskel data for "numbers_3_7" */
 
-static const uint32_t numbers_3_7_data[10][15] = {
+static const uint32_t numbers_3_5_data[10][15] = {
 {
 0xffffffff, 0xffffffff, 0xffffffff, 
 0xffffffff, 0x00000000, 0xffffffff, 
@@ -268,7 +268,7 @@ static const uint32_t spook_paars_7x7_data[2][49] = {
 {
 0x00000000, 0x00000000, 0xffff00ff, 0xffff00ff, 0xffff00ff, 0x00000000, 0x00000000, 
 0x00000000, 0xffff00ff, 0xffff00ff, 0xffff00ff, 0xffff00ff, 0xffff00ff, 0x00000000, 
-0xffff00ff, 0xffffffff, 0xfffeffff, 0xffff00ff, 0xfffeffff, 0xfffeffff, 0xffff00ff, 
+0xffff00ff, 0xfffeffff, 0xfffeffff, 0xffff00ff, 0xfffeffff, 0xfffeffff, 0xffff00ff, 
 0xffff00ff, 0xff000000, 0xfffeffff, 0xffff00ff, 0xff000000, 0xfffeffff, 0xffff00ff, 
 0xffff00ff, 0xffff00ff, 0xffff00ff, 0xffff00ff, 0xffff00ff, 0xffff00ff, 0xffff00ff, 
 0xffff00ff, 0xffff00ff, 0xffff00ff, 0xffff00ff, 0xffff00ff, 0xffff00ff, 0xffff00ff, 

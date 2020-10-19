@@ -44,10 +44,10 @@ void sprite_create_sprites() {
   sprites_glb[SPRITES_GHOST].height    = GHOST_FRAME_HEIGHT;
   sprites_glb[SPRITES_GHOST].data      = (uint32_t*)ghost_data;
 
-  sprites_glb[SPRITES_NUMBERS_3_7].no_frames = NUMBERS_3_7_FRAME_COUNT;
-  sprites_glb[SPRITES_NUMBERS_3_7].width     = NUMBERS_3_7_FRAME_WIDTH;
-  sprites_glb[SPRITES_NUMBERS_3_7].height    = NUMBERS_3_7_FRAME_HEIGHT;
-  sprites_glb[SPRITES_NUMBERS_3_7].data      = (uint32_t*)numbers_3_7_data;
+  sprites_glb[SPRITES_NUMBERS_3_5].no_frames = NUMBERS_3_5_FRAME_COUNT;
+  sprites_glb[SPRITES_NUMBERS_3_5].width     = NUMBERS_3_5_FRAME_WIDTH;
+  sprites_glb[SPRITES_NUMBERS_3_5].height    = NUMBERS_3_5_FRAME_HEIGHT;
+  sprites_glb[SPRITES_NUMBERS_3_5].data      = (uint32_t*)numbers_3_5_data;
 
   sprites_glb[SPRITES_SPOOK_PAARS_7x7].no_frames = SPOOK_PAARS_7X7_FRAME_COUNT;
   sprites_glb[SPRITES_SPOOK_PAARS_7x7].width     = SPOOK_PAARS_7X7_FRAME_WIDTH;
