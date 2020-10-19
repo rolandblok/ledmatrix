@@ -140,26 +140,37 @@ void led_control_update(unsigned long current_time_ms)
 
     // ======================
     // draw pakmen and ghosts.
+    static bool ghost_active = false;
+    static int  last_minute = minute();
     static unsigned long STEP_TIME_MS = 250;
     static unsigned long last_update_time_ms = 0;
     static int bottom_sprite_position = -3*(7+2);
-    if (bottom_sprite_position == 15) {
-      bottom_sprite_position = -3*(7+2);
+    if (!ghost_active) {
+      if (minute() != last_minute) {
+        ghost_active = true;
+        last_minute = minute();
+      }
     }
-    if (current_time_ms > (last_update_time_ms + STEP_TIME_MS)) {
-      last_update_time_ms = current_time_ms;
-      bottom_sprite_position ++;
+    if (ghost_active) {
+      if (bottom_sprite_position == 15) {
+        bottom_sprite_position = -3*(7+2);
+        ghost_active = false;
+      }
+   
+      if (current_time_ms > (last_update_time_ms + STEP_TIME_MS)) {
+        last_update_time_ms = current_time_ms;
+        bottom_sprite_position ++;
+      }
+      int sprite_index = current_time_ms / (STEP_TIME_MS);
+      double hue_ghost_f = ((double)(current_time_ms % 1000)) / 1000.0;
+      uint32_t c32_ghost = colors.ColorHSV_32((uint16_t)(65535L * hue_ghost_f), 255, 255);
+      sprite_set_replacement_color(0xFFFFFFFF , c32_ghost);
+      sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 0, 7, SPRITES_PEKMEN_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 9, 7, SPRITES_SPOOK_PAARS_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 18, 7, SPRITES_SPOOK_WIT_7x7, sprite_index);
+      sprite_disable_replacement_color();
     }
-    int sprite_index = current_time_ms / (STEP_TIME_MS);
-    double hue_ghost_f = ((double)(current_time_ms % 1000)) / 1000.0;
-    uint32_t c32_ghost = colors.ColorHSV_32((uint16_t)(65535L * hue_ghost_f), 255, 255);
-    sprite_set_replacement_color(0xFFFFFFFF , c32_ghost);
-    sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 0, 7, SPRITES_PEKMEN_7x7, sprite_index);
-    sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 9, 7, SPRITES_SPOOK_PAARS_7x7, sprite_index);
-    sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 18, 7, SPRITES_SPOOK_WIT_7x7, sprite_index);
-    sprite_disable_replacement_color();
-
-  
+    
     
 
     
