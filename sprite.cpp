@@ -16,6 +16,9 @@ typedef struct sprite {
 
 sprite sprites_glb[SPRITES_COUNT];
 int    draw_all_width_glb ;
+uint32_t _repl_org_color;
+uint32_t _repl_new_color;
+bool     _repl_color_enabled = false;
 
 /**
  * I don't know how to create without function yet, easier import from piskel
@@ -46,11 +49,37 @@ void sprite_create_sprites() {
   sprites_glb[SPRITES_NUMBERS_3_7].height    = NUMBERS_3_7_FRAME_HEIGHT;
   sprites_glb[SPRITES_NUMBERS_3_7].data      = (uint32_t*)numbers_3_7_data;
 
+  sprites_glb[SPRITES_SPOOK_PAARS_7x7].no_frames = SPOOK_PAARS_7X7_FRAME_COUNT;
+  sprites_glb[SPRITES_SPOOK_PAARS_7x7].width     = SPOOK_PAARS_7X7_FRAME_WIDTH;
+  sprites_glb[SPRITES_SPOOK_PAARS_7x7].height    = SPOOK_PAARS_7X7_FRAME_HEIGHT;
+  sprites_glb[SPRITES_SPOOK_PAARS_7x7].data      = (uint32_t*)spook_paars_7x7_data;
+
+  sprites_glb[SPRITES_SPOOK_WIT_7x7].no_frames = SPOOK_WIT_7X7_FRAME_COUNT;
+  sprites_glb[SPRITES_SPOOK_WIT_7x7].width     = SPOOK_WIT_7X7_FRAME_WIDTH;
+  sprites_glb[SPRITES_SPOOK_WIT_7x7].height    = SPOOK_WIT_7X7_FRAME_HEIGHT;
+  sprites_glb[SPRITES_SPOOK_WIT_7x7].data      = (uint32_t*)spook_wit_7x7_data;
+
+  sprites_glb[SPRITES_PEKMEN_7x7].no_frames = PEKMEN_7X7_FRAME_COUNT;
+  sprites_glb[SPRITES_PEKMEN_7x7].width     = PEKMEN_7X7_FRAME_WIDTH;
+  sprites_glb[SPRITES_PEKMEN_7x7].height    = PEKMEN_7X7_FRAME_HEIGHT;
+  sprites_glb[SPRITES_PEKMEN_7x7].data      = (uint32_t*)pekmen_7x7_data;
+
+  
+
   draw_all_width_glb = WHITE_SPACE_BETWEEN_SPRITES * (SPRITES_COUNT-1);
   for (int sprite_nr = (int)SPRITES_START; sprite_nr < (int)SPRITES_COUNT; sprite_nr++) {
     draw_all_width_glb += sprites_glb[sprite_nr].width;
   }
   
+}
+
+void sprite_set_replacement_color(uint32_t org_color, uint32_t new_color) {
+  _repl_org_color = org_color;
+  _repl_new_color = new_color;
+  _repl_color_enabled = true;
+}
+void sprite_disable_replacement_color() {
+  _repl_color_enabled = false;
 }
 
 
@@ -71,9 +100,12 @@ void sprite_draw_sprite(Adafruit_NeoMatrix *matrix, Colors &colors, int16_t loca
   for (int16_t h = 0; h < height; h++) {
     for (int16_t w = 0; w < width; w++) {
       uint32_t piksel = *(sprites_glb[sprite_id].data +(frame * s) + ((h*width)+w));
+      if (_repl_color_enabled && (piksel == _repl_org_color)) {
+        piksel = _repl_new_color;
+      }
       
       int a = 0;
-      int16_t color = colors.get_matrix_color_rgba(piksel, &a);
+      int16_t color = colors.get_16b_color_rgba(piksel, &a);
       if (a != 0) {
         matrix->drawPixel(location_x+w, location_y+h, color);
       }

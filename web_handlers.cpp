@@ -55,12 +55,12 @@ String get_colors_of_all_leds() {
     for (int y = 1; y <= led_control_matrix_height; y++) {
       TRACE_VAR("x", String(x));
       TRACE_VAR("y", String(y));
-      uint32_t color = led_control_get_cached_color(x, y);
+      //uint32_t color = led_control_get_cached_color(x, y);
       TRACE_VAR("blah", "blah");
 //      TRACE_VAR("color", String((int)color, HEX));
-      String color_as_string = color_to_string(color);
-      TRACE_VAR("color_as_string", color_as_string);
-      content = content + String(x) + ";" + String(y) + ";" + color_as_string + "\n";
+      //String color_as_string = color_to_string(color);
+      //TRACE_VAR("color_as_string", color_as_string);
+      //content = content + String(x) + ";" + String(y) + ";" + color_as_string + "\n";
     }
   }
 
@@ -95,12 +95,12 @@ void handle_get_data() {
     if (server.hasArg("x") && server.hasArg("y")) {
       String x = server.arg("x");
       String y = server.arg("y");
-      String color = color_to_string(led_control_get_cached_color(x.toInt(), y.toInt()));
-      server.send(200, "​text/plain", x + ";" + y + ";" + color);
+      //String color = color_to_string(led_control_get_cached_color(x.toInt(), y.toInt()));
+      //server.send(200, "​text/plain", x + ";" + y + ";" + color);
     
       TRACE_VAR("x", String(x));
       TRACE_VAR("x", String(y));
-      TRACE_VAR("color", color);
+      //TRACE_VAR("color", color);
       TRACE_OUT();
       
       return;
@@ -134,7 +134,7 @@ void handle_set_data() {
       int x = xs.toInt();
       int y = ys.toInt();
       uint32_t color = string_to_color(server.arg("value"));
-      led_control_set_cached_color(x, y, color);
+      //led_control_set_cached_color(x, y, color);
       //led_control_update();
       server.send(200, "​text/plain", "ok");
       return;
