@@ -1,11 +1,10 @@
 #include <stdlib.h>
 #include "led_control.h"
 
-#include <Adafruit_NeoPixel.h>
-#include <Adafruit_NeoMatrix.h>
 #include <Arduino.h>
 #include <TimeLib.h>
 
+#include "PixelMatrix.h"
 #include "utils.h"
 #include "tracing.h"
 #include "sprite.h"
@@ -30,7 +29,7 @@ int led_control_matrix_height = 16;
 int led_control_matrix_aspect = 1;
 int led_control_matrix_size = led_control_matrix_width * led_control_matrix_height;
 
-static Adafruit_NeoMatrix *led_matrix = NULL;  
+static PixelMatrix *led_matrix = NULL;  
 
 void create_adafruit_object(int width, int height) {
 
@@ -38,13 +37,14 @@ void create_adafruit_object(int width, int height) {
     delete led_matrix;
   }
   
-  led_matrix = new Adafruit_NeoMatrix(width, height, led_control_matrix_pin,
-//    NEO_MATRIX_TOP     + NEO_MATRIX_RIGHT +  // Right : big pannel
-    NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +  // LEFT : small pannel
-    NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
+  led_matrix = new PixelMatrix(width, height, led_control_matrix_pin, true
+//    ,NEO_MATRIX_TOP     + NEO_MATRIX_RIGHT +  // Right : big pannel
+//    ,NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +  // LEFT : small pannel
+//    ,NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG
+  );
 
   led_matrix->setBrightness(255);
-  led_matrix->setTextWrap(false);
+//  led_matrix->setTextWrap(false);
   led_matrix->begin();
 
   sprite_create_sprites();
@@ -74,21 +74,27 @@ void led_control_set_led_matrix_size(int width, int height) {
   led_control_matrix_aspect = width/height;
 
   // draw init screen
-  for (int c = 1; c <= led_control_matrix_width; c++) {
-    for (int r = 1; r <= led_control_matrix_height; r++) {
-      if ((c+r)%5 == 0) {
-        led_matrix->drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(255, 255, 255));
-      } else if ((c+r)%5 == 1) {
-        led_matrix->drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(255, 0, 0));
-      } else if ((c+r)%5 == 2) {
-        led_matrix->drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 255, 0));
-      } else if ((c+r)%5 == 3) {
-        led_matrix->drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 0, 255));
-      } else if ((c+r)%5 == 4) {
-        led_matrix->drawPixel(c-1, r-1, Adafruit_NeoMatrix::Color(0, 0, 0));
-      }
+  for (int c = 0; c < led_control_matrix_width/2; c++) {
+    for (int r = 0; r < led_control_matrix_height/2; r++) {
+      led_matrix->draw_pixel(c, r, led_matrix->Color(255, 255, 255));
     }
   }
+  for (int c = led_control_matrix_width/2; c < led_control_matrix_width; c++) {
+    for (int r = 0; r < led_control_matrix_height/2; r++) {
+      led_matrix->draw_pixel(c, r, led_matrix->Color(255, 0, 0));
+    }
+  }
+  for (int c = 0; c < led_control_matrix_width/2; c++) {
+    for (int r = led_control_matrix_height/2 ; r < led_control_matrix_height; r++) {
+      led_matrix->draw_pixel(c, r, led_matrix->Color(0, 255, 0));
+    }
+  }
+  for (int c = led_control_matrix_width/2; c < led_control_matrix_width; c++) {
+    for (int r = led_control_matrix_height/2 ; r < led_control_matrix_height; r++) {
+      led_matrix->draw_pixel(c, r, led_matrix->Color(0, 0 , 255));
+    }
+  }
+  
 
   led_matrix->show();
   delay(1000);
@@ -106,9 +112,8 @@ void led_control_update(unsigned long current_time_ms)
   Timer timer = Timer(5.0);
   
   int potentiometer = analogRead(A0);
-  Colors colors = Colors(potentiometer/1024.0);
-  //Colors colors = Colors(1);  // use if no potmeter available
-
+  led_matrix->setBrightness(255*potentiometer/1024.0);
+//  led_matrix->setBrightness(255);
     
   String tijd = getStrTime();
   int16_t image_width = tijd.length()*6;
@@ -119,22 +124,20 @@ void led_control_update(unsigned long current_time_ms)
     double hue_clock_f = ((double)(current_time_ms % 20000)) / 20000.0;
     double hue_back_f = fmod(hue_clock_f + 0.5, 1.0);
 
-    uint32_t c32_clock = colors.ColorHSV_32((uint16_t)(65535L * hue_clock_f), 255, 255);
+    uint32_t c32_clock = led_matrix->ColorHSV_32((uint16_t)(65535L * hue_clock_f), 255, 255);
     sprite_set_replacement_color(0xFFFFFFFF , c32_clock);
 
-    uint32_t c32_back = colors.ColorHSV_32((uint16_t)(65535L * hue_back_f), 255, 50);
-    uint16_t c16_back = colors.get_16b_color_rgba(c32_back, &dummy);
-    //Serial.println("front , " + String(hue_clock_f) + ", rgba, " + colors.toString(c32_clock) + ", back, " + String(hue_back_f) + ", rgba, " + colors.toString(c32_back) );
-    led_matrix->fillScreen(c16_back);
-
+    uint32_t c32_back = led_matrix->ColorHSV((uint16_t)(65535L * hue_back_f), 255, 50);
+    led_matrix->fill_screen(c32_back);
+  
     // Create time
     div_t hour10 = div(hour(), 10);
-    sprite_draw_sprite(led_matrix, colors, 1, 1, SPRITES_NUMBERS_3_5, hour10.quot);
-    sprite_draw_sprite(led_matrix, colors, 5, 1, SPRITES_NUMBERS_3_5, hour10.rem);
+    sprite_draw_sprite(led_matrix, 1, 1, SPRITES_NUMBERS_3_5, hour10.quot);
+    sprite_draw_sprite(led_matrix, 5, 1, SPRITES_NUMBERS_3_5, hour10.rem);
 
     div_t minute10 = div(minute(), 10);
-    sprite_draw_sprite(led_matrix, colors, 6, 8, SPRITES_NUMBERS_3_5, minute10.quot);
-    sprite_draw_sprite(led_matrix, colors, 10, 8, SPRITES_NUMBERS_3_5, minute10.rem);
+    sprite_draw_sprite(led_matrix, 6, 8, SPRITES_NUMBERS_3_5, minute10.quot);
+    sprite_draw_sprite(led_matrix, 10, 8, SPRITES_NUMBERS_3_5, minute10.rem);
 
     sprite_disable_replacement_color();
 
@@ -163,42 +166,14 @@ void led_control_update(unsigned long current_time_ms)
       }
       int sprite_index = current_time_ms / (STEP_TIME_MS);
       double hue_ghost_f = ((double)(current_time_ms % 1000)) / 1000.0;
-      uint32_t c32_ghost = colors.ColorHSV_32((uint16_t)(65535L * hue_ghost_f), 255, 255);
+      uint32_t c32_ghost = led_matrix->ColorHSV_32((uint16_t)(65535L * hue_ghost_f), 255, 255);
       sprite_set_replacement_color(0xFFFFFFFF , c32_ghost);
-      sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 0, 7, SPRITES_PEKMEN_7x7, sprite_index);
-      sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 9, 7, SPRITES_SPOOK_PAARS_7x7, sprite_index);
-      sprite_draw_sprite(led_matrix, colors, bottom_sprite_position + 18, 7, SPRITES_SPOOK_WIT_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, bottom_sprite_position + 0, 7, SPRITES_PEKMEN_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, bottom_sprite_position + 9, 7, SPRITES_SPOOK_PAARS_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, bottom_sprite_position + 18, 7, SPRITES_SPOOK_WIT_7x7, sprite_index);
       sprite_disable_replacement_color();
     }
-    
-    
-
-    
-  } else if (led_control_matrix_aspect == 1) {
-  // square led pannel 
-    int16_t cursor_location = timer.get_location_back_and_forth(led_control_matrix_width, image_width, 1);
-    led_matrix->setTextColor(colors.get_16b_color(255,0,0));
-    led_matrix->setCursor(cursor_location, 0);
-    led_matrix->setTextSize(1);
-    led_matrix->print(tijd);
-  
-    sprite_update_sprites(led_matrix, timer, colors, led_control_matrix_width, led_control_matrix_height, 8);
-    
-  }  else {
-    // rectangle led pannel
-    Timer swap_sprite_clock = Timer(20.0);
-    led_matrix->setTextColor(colors.get_16b_color(255,0,0));
-    led_matrix->setCursor(0, 0);
-    led_matrix->setTextSize(1);
-    led_matrix->print(tijd);
-
-    sprite_update_sprites(led_matrix, timer, colors, led_control_matrix_width, led_control_matrix_height, 0);
-
   }
-
-  
-
-
   
   
   led_matrix->show();

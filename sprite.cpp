@@ -83,7 +83,7 @@ void sprite_disable_replacement_color() {
 }
 
 
-void sprite_draw_sprite(Adafruit_NeoMatrix *matrix, Colors &colors, int16_t location_x, int16_t location_y, SPRITES_ENUM sprite_id, int16_t frame) {
+void sprite_draw_sprite(PixelMatrix *matrix, int16_t location_x, int16_t location_y, SPRITES_ENUM sprite_id, int16_t frame) {
 
   int width  = sprites_glb[sprite_id].width;
   int height = sprites_glb[sprite_id].height;
@@ -104,10 +104,9 @@ void sprite_draw_sprite(Adafruit_NeoMatrix *matrix, Colors &colors, int16_t loca
         piksel = _repl_new_color;
       }
       
-      int a = 0;
-      int16_t color = colors.get_16b_color_rgba(piksel, &a);
-      if (a != 0) {
-        matrix->drawPixel(location_x+w, location_y+h, color);
+      int16_t alpha = matrix->get_alpha_color(piksel);
+      if (alpha != 0) {
+        matrix->draw_pixel(location_x+w, location_y+h, piksel);
       }
     }
   }
@@ -115,7 +114,7 @@ void sprite_draw_sprite(Adafruit_NeoMatrix *matrix, Colors &colors, int16_t loca
 }
 
 
-void sprite_update_sprites(Adafruit_NeoMatrix *matrix, Timer &timer, Colors &colors, int matrix_width, int matrix_height, int y_offset) {
+void sprite_update_sprites(PixelMatrix *matrix, Timer &timer, int matrix_width, int matrix_height, int y_offset) {
   TRACE_IN();
 
   int16_t time_in_period = timer.time_in_period(matrix_width + draw_all_width_glb + 1);
@@ -123,7 +122,7 @@ void sprite_update_sprites(Adafruit_NeoMatrix *matrix, Timer &timer, Colors &col
   //Serial.println(" time_in_period " + String(time_in_period));
     
   for (int sprite_nr = (int)SPRITES_START; sprite_nr < (int)SPRITES_COUNT; sprite_nr++) {
-    sprite_draw_sprite(matrix, colors, location_x, y_offset, (SPRITES_ENUM)sprite_nr, time_in_period);
+    sprite_draw_sprite(matrix, location_x, y_offset, (SPRITES_ENUM)sprite_nr, time_in_period);
     location_x += sprites_glb[sprite_nr].width + WHITE_SPACE_BETWEEN_SPRITES;
   }
   
