@@ -54,6 +54,21 @@ void sprite_create_sprites() {
   sprites_glb[SPRITES_SPOOK_PAARS_7x7].height    = SPOOK_PAARS_7X7_FRAME_HEIGHT;
   sprites_glb[SPRITES_SPOOK_PAARS_7x7].data      = (uint32_t*)spook_paars_7x7_data;
 
+  sprites_glb[SPRITES_SPOOK_ROOD_7x7].no_frames = SPOOK_ROOD_7X7_FRAME_COUNT;
+  sprites_glb[SPRITES_SPOOK_ROOD_7x7].width     = SPOOK_ROOD_7X7_FRAME_WIDTH;
+  sprites_glb[SPRITES_SPOOK_ROOD_7x7].height    = SPOOK_ROOD_7X7_FRAME_HEIGHT;
+  sprites_glb[SPRITES_SPOOK_ROOD_7x7].data      = (uint32_t*)spook_rood_7x7_data;
+
+  sprites_glb[SPRITES_SPOOK_GROEN_7x7].no_frames = SPOOK_GROEN_7X7_FRAME_COUNT;
+  sprites_glb[SPRITES_SPOOK_GROEN_7x7].width     = SPOOK_GROEN_7X7_FRAME_WIDTH;
+  sprites_glb[SPRITES_SPOOK_GROEN_7x7].height    = SPOOK_GROEN_7X7_FRAME_HEIGHT;
+  sprites_glb[SPRITES_SPOOK_GROEN_7x7].data      = (uint32_t*)spook_groen_7x7_data;
+
+  sprites_glb[SPRITES_SPOOK_BLAUW_7x7].no_frames = SPOOK_BLAUW_7X7_FRAME_COUNT;
+  sprites_glb[SPRITES_SPOOK_BLAUW_7x7].width     = SPOOK_BLAUW_7X7_FRAME_WIDTH;
+  sprites_glb[SPRITES_SPOOK_BLAUW_7x7].height    = SPOOK_BLAUW_7X7_FRAME_HEIGHT;
+  sprites_glb[SPRITES_SPOOK_BLAUW_7x7].data      = (uint32_t*)spook_blauw_7x7_data;
+
   sprites_glb[SPRITES_SPOOK_WIT_7x7].no_frames = SPOOK_WIT_7X7_FRAME_COUNT;
   sprites_glb[SPRITES_SPOOK_WIT_7x7].width     = SPOOK_WIT_7X7_FRAME_WIDTH;
   sprites_glb[SPRITES_SPOOK_WIT_7x7].height    = SPOOK_WIT_7X7_FRAME_HEIGHT;

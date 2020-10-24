@@ -3,7 +3,7 @@
 #include "tracing.h"
 
 PixelMatrix::PixelMatrix(uint16_t width, uint16_t height, uint16_t pin, bool meander_start_top_left ) 
-      : Adafruit_NeoPixel( width*height, pin) {
+      : Adafruit_NeoPixel( width*height, pin, NEO_GRB + NEO_KHZ800) {
   _width = width;
   _height = height;
   _one_if_right_to_left = meander_start_top_left ? 1 : 0;
@@ -21,8 +21,14 @@ void PixelMatrix::draw_pixel(int16_t  x, int16_t  y, uint32_t color) {
     }
   
     int16_t led_id = y * _width + x;
+
+    // swap red and blue 
+    uint8_t b = (uint8_t)(color >> 16);
+    uint8_t g = (uint8_t)(color >> 8);
+    uint8_t r = (uint8_t)color; 
     
-    setPixelColor(led_id, color);
+    
+    setPixelColor(led_id, r, g, b);
   }
 }
 
