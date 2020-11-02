@@ -16,6 +16,11 @@ void setup_web_server() {
   server.on("/scripts.js", handle_scripts);
   server.on("/get_data", handle_get_data);
   server.on("/set_data", handle_set_data);
+  
+  server.on("/right",    [](){led_control_breakout_right(); server.send(200, "​text/plain", "ok");});
+  server.on("/left",     [](){led_control_breakout_left(); server.send(200, "​text/plain", "ok");});
+  server.on("/breakout", [](){led_control_set_mode(LED_MODE_BREAKOUT); server.send(200, "​text/plain", "ok");});
+  server.on("/clock",    [](){led_control_set_mode(LED_MODE_CLOCK); server.send(200, "​text/plain", "ok");});
 
   server.onNotFound(handle_not_found);
 

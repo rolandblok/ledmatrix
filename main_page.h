@@ -7,13 +7,27 @@ char main_page[] = R"-=o=-(<!DOCTYPE html>
 
     <!-- Next our own javascript shizzle -->
     <script src="scripts.js"></script>
+    <style type="text/css">
+    button {
+        width:40%;
+        height:40%;
+        padding:5px;
+        border:1px solid #000;
+        margin: 0 0 1px;
+    }
+    </style>
   </head>
 
-  <body onload="fill_led_matrix()">
-    <div id="color_picker_container">
-      <input id="color_picker" class="jscolor" value="ab2567">
-    </div>
-    <div id="led_matrix" />
+  <body>
+
+  <br>
+    <button type="button" onclick="fetch('clock')">CLOCK</button>
+    <button type="button" onclick="fetch('breakout')">BREAKOUT</button>    
+    <br>
+    <br>
+    <br>
+    <button type="button" onclick="fetch('left')">LEFT</button>
+    <button type="button" onclick="fetch('right')">RIGHT</button>    
   </body>
 
 </html>

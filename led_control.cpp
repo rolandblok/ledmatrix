@@ -31,6 +31,32 @@ int led_control_matrix_size = led_control_matrix_width * led_control_matrix_heig
 
 static PixelMatrix *led_matrix = NULL;  
 
+static LED_MODE_ENUM led_control_led_mode = LED_MODE_CLOCK;
+static int stick_pos = 1;
+    
+
+
+void led_control_set_mode(LED_MODE_ENUM led_mode) {
+  led_control_led_mode = led_mode;
+  Serial.println("set mode : " + String(led_mode));
+}
+
+void led_control_breakout_left() {
+  stick_pos -= 1;
+  if (stick_pos < 1) {
+    stick_pos = 1;
+  }
+  Serial.println(" breakout left : stick pos : " + String(stick_pos));
+}
+void led_control_breakout_right() {
+  stick_pos += 1;
+  if (stick_pos > (led_control_matrix_width-2)) {
+    stick_pos = (led_control_matrix_width-2);
+  }
+  Serial.println(" breakout right : stick pos : " + String(stick_pos));
+}
+
+
 void create_adafruit_object(int width, int height) {
 
   if (led_matrix != NULL) {
@@ -109,8 +135,6 @@ void led_control_update(unsigned long current_time_ms)
 
   led_matrix->clear();
   
-  Timer timer = Timer(5.0);
-  
   int potentiometer = analogRead(A0);
   led_matrix->setBrightness(255*potentiometer/1024.0);
 //  led_matrix->setBrightness(255);
@@ -118,7 +142,7 @@ void led_control_update(unsigned long current_time_ms)
   String tijd = getStrTime();
   int16_t image_width = tijd.length()*6;
 
-  if (led_control_matrix_aspect == 1) {
+  if (led_control_led_mode == LED_MODE_CLOCK) {
 
     int dummy = 0;
     double hue_clock_f = ((double)(current_time_ms % 20000)) / 20000.0;
@@ -176,6 +200,85 @@ void led_control_update(unsigned long current_time_ms)
       sprite_draw_sprite(led_matrix, bottom_sprite_position + 45, 7, SPRITES_SPOOK_WIT_7x7, sprite_index);
       sprite_disable_replacement_color();
     }
+
+
+    
+  } else if (led_control_led_mode == LED_MODE_BREAKOUT) {
+    static bool new_game = true;
+    static int stick_width = 3;
+    static unsigned long dots[3] = {0};
+    static int ball_pos_x = 0; 
+    static int ball_pos_y = 0; 
+    static int ball_x_direction = 0;
+    static int ball_y_direction = 0;
+    static unsigned long STEP_TIME_MS = 200;
+    static unsigned long last_update_time_ms = 0;
+
+    if (new_game) {
+      new_game = false;
+      last_update_time_ms = current_time_ms;
+      stick_pos = led_control_matrix_width / 2 ;
+      ball_pos_x = stick_pos;
+      ball_pos_y = led_control_matrix_height - 2;
+      ball_x_direction = 1;
+      ball_y_direction = -1;
+      
+      dots[0] = ~0;
+      dots[1] = ~0;
+      dots[2] = ~0;
+    }
+
+    // update game
+    if (current_time_ms > (last_update_time_ms + STEP_TIME_MS)) {
+      last_update_time_ms = current_time_ms;
+      int new_ball_pos_x = ball_pos_x + ball_x_direction;
+      int new_ball_pos_y = ball_pos_y + ball_y_direction;
+      //bounce left screen
+      if (new_ball_pos_x < 0) {
+        new_ball_pos_x = 1;
+        ball_x_direction = -ball_x_direction;
+      }
+      //bounce right screen
+      if (new_ball_pos_x == led_control_matrix_width) {
+        new_ball_pos_x = led_control_matrix_width - 2;
+        ball_x_direction = -ball_x_direction;
+      }
+      // bounce pad
+      if (new_ball_pos_y > led_control_matrix_width - 2){
+        // todo : add pad detection
+        new_ball_pos_y = led_control_matrix_width - 3;
+        ball_y_direction = -ball_y_direction;
+      }
+      // bounce dots
+      // todo : add dot detection
+      if (new_ball_pos_y < 2){
+        
+        new_ball_pos_y = 3;
+        ball_y_direction = -ball_y_direction;
+      }
+
+      ball_pos_x = new_ball_pos_x;
+      ball_pos_y = new_ball_pos_y;
+      
+    }
+
+    // draw dots
+    for (int row = 0; row < 3; row ++) {
+      for (int pix = 0; pix < led_control_matrix_width; pix++) {
+        if (dots[row] & (1<< pix)) {
+          led_matrix->draw_pixel(pix, row, led_matrix->Color(255, 255, 255));
+        }
+      }
+    }
+    // draw stick
+    led_matrix->draw_pixel(stick_pos-1, led_control_matrix_height - 1, led_matrix->Color(255, 255, 255));
+    led_matrix->draw_pixel(stick_pos,   led_control_matrix_height - 1, led_matrix->Color(255, 255, 255));
+    led_matrix->draw_pixel(stick_pos+1, led_control_matrix_height - 1, led_matrix->Color(255, 255, 255));
+    // draw ball
+    led_matrix->draw_pixel(ball_pos_x, ball_pos_y, led_matrix->Color(255, 0, 0 ));
+
+    
+    
   }
   
   

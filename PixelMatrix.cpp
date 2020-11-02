@@ -27,7 +27,6 @@ void PixelMatrix::draw_pixel(int16_t  x, int16_t  y, uint32_t color) {
     uint8_t g = (uint8_t)(color >> 8);
     uint8_t r = (uint8_t)color; 
     
-    
     setPixelColor(led_id, r, g, b);
   }
 }

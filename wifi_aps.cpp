@@ -37,6 +37,7 @@ void setup_wifi_aps() {
     wifi_app.ssid.toCharArray(ssid_buf, EEPC_WIFI_AP_SSID_MAX_LEN);
     wifi_app.pwd.toCharArray(pwd_buf, EEPC_WIFI_AP_PWD_MAX_LEN);
     wifiMulti.addAP(ssid_buf, pwd_buf);
+
   }
   TRACE_OUT();
   return;
@@ -56,7 +57,7 @@ boolean handle_wifi() {
     unsigned long now_ms = millis();
     if (((now_ms - last_update_ms) > 3000) && (wifi_set_connecting)) {
       last_update_ms = now_ms;
-
+      WiFi.hostname("ledmatrix");
       if (wifiMulti.run() == WL_CONNECTED ) {
         wifi_connected = true;
         Serial.println("SSID: " + WiFi.SSID() + "; IP address: " + WiFi.localIP().toString());
@@ -73,6 +74,9 @@ boolean handle_wifi() {
   
 }
 
+String wifi_get_local_IP() {
+  return WiFi.localIP().toString();
+}
 
 /**
  * always let this follow with wifi_ap_add_wifi_ap, to enable wifi connecting again.

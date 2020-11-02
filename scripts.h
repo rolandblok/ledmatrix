@@ -3,6 +3,7 @@ var width = undefined;
 var height = undefined;
 var server = ""
 
+
 function fill_led_matrix() {
   fetch("get_data?item=width")
     .then( (response) => response.text() )

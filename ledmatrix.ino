@@ -107,6 +107,8 @@ void handle_serial() {
       clear_wifi_apps();
       Serial.println("----------");
       
+    } else if ((command.equals("IP")) || (command.equals("ip"))) {
+      Serial.println(wifi_get_local_IP());
     } else if (command.equals("eepl")) {
       eeprom_serial();
     } else if (command.equals("eepc")) {
@@ -124,6 +126,7 @@ void handle_serial() {
       Serial.println("  wifi   : scan available wifi and select");
       Serial.println("  wlist  : list stored ssid + pwd");
       Serial.println("  wclear : clear stored ssid + pwd");
+      Serial.println("  ip     : get local IP");
       Serial.println("  eepl   : list eeprom stored data");
       Serial.println("  eepc   : clear eeprom");
       Serial.println("  aspect : set matrix aspect (width / height)");
@@ -144,7 +147,7 @@ void handle_leds() {
   
   int current_time_ms = millis();
   
-  if (current_time_ms - last_update_ms < 4) {
+  if (current_time_ms - last_update_ms < 14) {
     if (TRACE_ALL) TRACE_OUT();
     
   } else {
