@@ -249,11 +249,18 @@ void led_control_update(unsigned long current_time_ms)
         new_ball_pos_y = led_control_matrix_width - 3;
         ball_y_direction = -ball_y_direction;
       }
-      // bounce dots
-      // todo : add dot detection
-      if (new_ball_pos_y < 2){
-        
-        new_ball_pos_y = 3;
+      // bounce and eat dots
+      if (new_ball_pos_y < 3){
+        if (dots[new_ball_pos_y] & (1 << new_ball_pos_x)) {
+          dots[new_ball_pos_y] = dots[new_ball_pos_y] & ~(1<<new_ball_pos_x);  // remove dot
+          new_ball_pos_x = ball_pos_x;
+          new_ball_pos_y = ball_pos_y;
+          ball_x_direction = -ball_x_direction;
+          ball_y_direction = -ball_y_direction;
+        }
+      }
+      if (new_ball_pos_y < 0) {
+        new_ball_pos_y = 0;
         ball_y_direction = -ball_y_direction;
       }
 
@@ -262,11 +269,28 @@ void led_control_update(unsigned long current_time_ms)
       
     }
 
+    // every 5 seconds, color cycle the dots, with offset :-)
+    static unsigned long dots_cycle_time_long_ms = 0;
+    static unsigned long dots_cycle_time_short_ms = 0;
+    if ((current_time_ms - dots_cycle_time_long_ms) > 5000) {
+      dots_cycle_time_long_ms = current_time_ms;
+      dots_cycle_time_short_ms = current_time_ms;
+    }
+
+
     // draw dots
     for (int row = 0; row < 3; row ++) {
       for (int pix = 0; pix < led_control_matrix_width; pix++) {
-        if (dots[row] & (1<< pix)) {
-          led_matrix->draw_pixel(pix, row, led_matrix->Color(255, 255, 255));
+        if (dots[row] & (1 << pix)) {
+          // get color cycle
+          uint32_t c32_dot = led_matrix->Color(255, 255, 255);
+          unsigned long dots_cycle_time_short_delta_ms = current_time_ms - dots_cycle_time_short_ms - (row+pix)*10;
+          double hue_dot_f = (double)(dots_cycle_time_short_delta_ms / 2000.0);
+          
+          if ((hue_dot_f > 0) && (hue_dot_f < 1)) {
+            c32_dot = led_matrix->ColorHSV_32((uint16_t)(65535L * hue_dot_f), 255, 255);
+          } 
+          led_matrix->draw_pixel(pix, row, c32_dot);
         }
       }
     }
