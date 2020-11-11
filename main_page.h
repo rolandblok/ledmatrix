@@ -9,8 +9,8 @@ char main_page[] = R"-=o=-(<!DOCTYPE html>
     <script src="scripts.js"></script>
     <style type="text/css">
     button {
-        width:40%;
-        height:40%;
+        width:30%;
+        height:30%;
         padding:5px;
         border:1px solid #000;
         margin: 0 0 1px;
@@ -23,6 +23,7 @@ char main_page[] = R"-=o=-(<!DOCTYPE html>
   <br>
     <button type="button" onclick="fetch('clock')">CLOCK</button>
     <button type="button" onclick="fetch('breakout')">BREAKOUT</button>    
+    <button type="button" onclick="fetch('stream')">STREAM</button>    
     <br>
     <br>
     <br>

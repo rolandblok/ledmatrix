@@ -5,9 +5,12 @@
 #include "tracing.h"
 
 #include <Arduino.h>
+#include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
 ESP8266WebServer server(80);
+WiFiServer stream_server(21);
+WiFiClient stream_client;
 
 void setup_web_server() {
   TRACE_IN();
@@ -21,16 +24,45 @@ void setup_web_server() {
   server.on("/left",     [](){led_control_breakout_left(); server.send(200, "​text/plain", "ok");});
   server.on("/breakout", [](){led_control_set_mode(LED_MODE_BREAKOUT); server.send(200, "​text/plain", "ok");});
   server.on("/clock",    [](){led_control_set_mode(LED_MODE_CLOCK); server.send(200, "​text/plain", "ok");});
+  server.on("/stream",   [](){led_control_set_mode(LED_MODE_OFF); server.send(200, "​text/plain", "ok");});
 
   server.onNotFound(handle_not_found);
 
   server.begin();
+
+  stream_server.begin();
+  stream_server.setNoDelay(true);
   
   TRACE_OUT();
 }
 
 void handle_requests() {
   server.handleClient();
+
+  if (stream_server.hasClient()) {
+    stream_client = stream_server.available();
+  }
+
+  int16_t x = 0;
+  int16_t y = 0;
+  while (stream_client.available()) {
+    byte r = stream_client.read();
+    byte g = stream_client.read();
+    byte b = stream_client.read();
+
+    led_matrix->draw_pixel(x, y, led_matrix->Color(r, g , b));
+//    Serial.println("x=" + String(x) + "y=" + String(y) + "r=" + String(r) + "g=" + String(g) + "b=" + String(b));
+    x++;
+    if (x == led_control_matrix_width) {
+      x = 0;
+      y++;
+    }
+
+    if (y == led_control_matrix_height) {
+      Serial.println("x=" + String(x) + "y=" + String(y) + "r=" + String(r) + "g=" + String(g) + "b=" + String(b));
+      break;
+    }
+  }  
 }
 
 #include "main_page.h"

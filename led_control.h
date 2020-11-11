@@ -3,16 +3,20 @@
 
 #include <stdint.h>
 
+#include "PixelMatrix.h"
+
 extern int led_control_matrix_pin;
 extern int led_control_blink_pin;
 extern int led_control_matrix_width;
 extern int led_control_matrix_height;
 extern int led_control_matrix_size;
+extern PixelMatrix *led_matrix;
 
 enum LED_MODE_ENUM {
   LED_MODE_START = 0,
   LED_MODE_CLOCK = 0,
   LED_MODE_BREAKOUT,
+  LED_MODE_OFF,
   
   LED_MODE_COUNT
 };
