@@ -70,7 +70,7 @@ String PixelMatrix::toString(int r, int g, int b, int a) {
 }
 
 uint32_t PixelMatrix::ColorHSV_32(uint16_t hue, uint8_t sat, uint8_t val) {
-  uint32_t c32 = ColorHSV((uint16_t)(65535L * hue), sat, val);
+  uint32_t c32 = ColorHSV(hue, sat, val);
   c32 += 0xFF000000; // fill also a, because ADA forgot to.
   return c32;
 }

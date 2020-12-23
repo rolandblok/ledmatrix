@@ -22,7 +22,7 @@ enum SPRITES_ENUM {
 };
 
 void sprite_create_sprites();
-void sprite_draw_sprite(PixelMatrix *matrix, int16_t location_x, int16_t location_y, SPRITES_ENUM sprite_id, int16_t frame);
+void sprite_draw_sprite(PixelMatrix *matrix, int16_t location_x, int16_t location_y, SPRITES_ENUM sprite_id, int16_t frame, bool mirror = false);
 void sprite_update_sprites(PixelMatrix *matrix, Timer &timer, int width, int height, int offset);
 
 void sprite_set_replacement_color(uint32_t org_color, uint32_t new_color);

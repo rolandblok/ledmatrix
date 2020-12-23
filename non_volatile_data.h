@@ -5,6 +5,17 @@
 
 //==========================
 // Rolands versie hard coded
+enum EEPROM_BRIGHTNESS_MODES {
+  EEPROM_BRIGHTNESS_MODES_START = 0,
+  EEPROM_BRIGHTNESS_MODES_POTMETER = 0,
+  EEPROM_BRIGHTNESS_MODES_HTTP,
+  EEPROM_BRIGHTNESS_MODES_COUNT
+};
+static const char* EEPROM_BRIGHTNESS_MODES_STR[EEPROM_BRIGHTNESS_MODES_COUNT] = 
+{
+  [EEPROM_BRIGHTNESS_MODES_POTMETER]  = "potmeter mode",
+  [EEPROM_BRIGHTNESS_MODES_HTTP]   = "http mode"
+};
 
 #define EEPC_WIFI_AP_MAX_APS      (5)
 #define EEPC_WIFI_AP_SSID_MAX_LEN (33)
@@ -18,6 +29,10 @@ void eeprom_setLedMatrixHeight(int h);
 int  eeprom_getLedMatrixHeight();
 void eeprom_setLedMatrixWidth(int w);
 int  eeprom_getLedMatrixWidth();
+void eeprom_setLedMatrixBrightnessMode(EEPROM_BRIGHTNESS_MODES b_more);
+EEPROM_BRIGHTNESS_MODES eeprom_getLedMatrixBrightnessMode();
+void eeprom_setLedMatrixBrightness(int b);  // value 0 .. 255
+int  eeprom_getLedMatrixBrightness();
 
 void   eeprom_addWifiAp(String ssid, String pwd);
 int    eeprom_getNoWifiAps();

@@ -21,6 +21,7 @@ enum LED_MODE_ENUM {
 void led_control_set_mode(LED_MODE_ENUM led_mode);
 void led_control_setup(int width, int height);
 void led_control_set_led_matrix_size(int width, int height);
+void led_control_set_brightness(int brightness);
 void led_control_update(unsigned long current_time_ms);
 
 void led_control_breakout_left();

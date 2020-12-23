@@ -98,7 +98,7 @@ void sprite_disable_replacement_color() {
 }
 
 
-void sprite_draw_sprite(PixelMatrix *matrix, int16_t location_x, int16_t location_y, SPRITES_ENUM sprite_id, int16_t frame) {
+void sprite_draw_sprite(PixelMatrix *matrix, int16_t location_x, int16_t location_y, SPRITES_ENUM sprite_id, int16_t frame, bool mirror) {
 
   int width  = sprites_glb[sprite_id].width;
   int height = sprites_glb[sprite_id].height;
@@ -114,6 +114,7 @@ void sprite_draw_sprite(PixelMatrix *matrix, int16_t location_x, int16_t locatio
   
   for (int16_t h = 0; h < height; h++) {
     for (int16_t w = 0; w < width; w++) {
+      
       uint32_t piksel = *(sprites_glb[sprite_id].data +(frame * s) + ((h*width)+w));
       if (_repl_color_enabled && (piksel == _repl_org_color)) {
         piksel = _repl_new_color;
@@ -121,7 +122,11 @@ void sprite_draw_sprite(PixelMatrix *matrix, int16_t location_x, int16_t locatio
       
       int16_t alpha = matrix->get_alpha_color(piksel);
       if (alpha != 0) {
-        matrix->draw_pixel(location_x+w, location_y+h, piksel);
+        if (mirror) {
+          matrix->draw_pixel(location_x+ (width - w - 1), location_y+h, piksel);
+        } else {
+          matrix->draw_pixel(location_x+w, location_y+h, piksel);
+        }
       }
     }
   }

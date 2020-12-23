@@ -79,7 +79,6 @@ void create_adafruit_object(int width, int height) {
 void led_control_setup(int width, int height) {
   TRACE_IN();
   
-  pinMode(A0, INPUT); 
   pinMode(led_control_matrix_pin, OUTPUT);
   if (width == 0)  { width = 16; }
   if (height == 0) { height = 16; }
@@ -128,16 +127,15 @@ void led_control_set_led_matrix_size(int width, int height) {
   TRACE_OUT();
 }
 
+void led_control_set_brightness(int brightness) {
+  led_matrix->setBrightness(brightness);
+}
 
 void led_control_update(unsigned long current_time_ms)
 {
   TRACE_IN();
 
   led_matrix->clear();
-  
-  int potentiometer = analogRead(A0);
-  led_matrix->setBrightness(255*potentiometer/1024.0);
-//  led_matrix->setBrightness(255);
     
   String tijd = getStrTime();
   int16_t image_width = tijd.length()*6;
@@ -146,59 +144,93 @@ void led_control_update(unsigned long current_time_ms)
 
     int dummy = 0;
     double hue_clock_f = ((double)(current_time_ms % 20000)) / 20000.0;
-    double hue_back_f = fmod(hue_clock_f + 0.5, 1.0);
 
     uint32_t c32_clock = led_matrix->ColorHSV_32((uint16_t)(65535L * hue_clock_f), 255, 255);
     sprite_set_replacement_color(0xFFFFFFFF , c32_clock);
 
+//    uint16_t hue_back_int = ((uint16_t)(65535L * (hue_clock_f + 0.5)))%65535L;
+//    uint32_t c32_back = led_matrix->ColorHSV_32(hue_back_int, 255, 50);
+    double hue_back_f = fmod(hue_clock_f + 0.5, 1.0);
     uint32_t c32_back = led_matrix->ColorHSV_32((uint16_t)(65535L * hue_back_f), 255, 50);
     led_matrix->fill_screen(c32_back);
   
     // Create time
     div_t hour10 = div(hour(), 10);
-    sprite_draw_sprite(led_matrix, 1, 1, SPRITES_NUMBERS_3_5, hour10.quot);
-    sprite_draw_sprite(led_matrix, 5, 1, SPRITES_NUMBERS_3_5, hour10.rem);
+    sprite_draw_sprite(led_matrix, 3, 2, SPRITES_NUMBERS_3_5, hour10.quot);
+    sprite_draw_sprite(led_matrix, 7, 2, SPRITES_NUMBERS_3_5, hour10.rem);
 
     div_t minute10 = div(minute(), 10);
-    sprite_draw_sprite(led_matrix, 6, 8, SPRITES_NUMBERS_3_5, minute10.quot);
-    sprite_draw_sprite(led_matrix, 10, 8, SPRITES_NUMBERS_3_5, minute10.rem);
+    sprite_draw_sprite(led_matrix, 6, 9, SPRITES_NUMBERS_3_5, minute10.quot);
+    sprite_draw_sprite(led_matrix, 10, 9, SPRITES_NUMBERS_3_5, minute10.rem);
 
     sprite_disable_replacement_color();
 
     // ======================
     // draw pakmen and ghosts.
-    static bool ghost_active = false;
+    static bool ghost_min_active = true;  // let's draws them at startup
+    static bool ghost_hour_active = true; // let's draws them at startup
     static int  last_minute = minute();
+    static int  last_hour = hour();
     static unsigned long STEP_TIME_MS = 250;
-    static unsigned long last_update_time_ms = 0;
-    static int bottom_sprite_position = -6*(7+2);
-    if (!ghost_active) {
-      if (minute() != last_minute) {
-        ghost_active = true;
-        last_minute = minute();
-      }
+    static unsigned long last_min_update_time_ms = 0;
+    static unsigned long last_hour_update_time_ms = 0;
+    static int minute_sprite_position = -6*(7+2); // 6 sprites, 7 pixels wide, 2 pixels space in between.
+    static int hour_sprite_position = 15;         // they go left to right
+    // =====MINUTE GHOSTS=====
+    // activate ghosts at minute change
+    if ((!ghost_min_active) && (minute() != last_minute)) {  
+      ghost_min_active = true;
+      last_minute = minute();
     }
-    if (ghost_active) {
-      if (bottom_sprite_position == 15) {
-        bottom_sprite_position = -6*(7+2);
-        ghost_active = false;
+    if (ghost_min_active) {
+      if (minute_sprite_position == 15) {
+        minute_sprite_position = -6*(7+2);    // 6 sprites, 7 pixels wide, 2 pixels space in between.
+        ghost_min_active = false;
       }
    
-      if (current_time_ms > (last_update_time_ms + STEP_TIME_MS)) {
-        last_update_time_ms = current_time_ms;
-        bottom_sprite_position ++;
+      if (current_time_ms > (last_min_update_time_ms + STEP_TIME_MS)) {
+        last_min_update_time_ms = current_time_ms;
+        minute_sprite_position ++;
       }
       int sprite_index = current_time_ms / (STEP_TIME_MS);
       double hue_ghost_f = ((double)(current_time_ms % 1000)) / 1000.0;
       uint32_t c32_ghost = led_matrix->ColorHSV_32((uint16_t)(65535L * hue_ghost_f), 255, 255);
-      sprite_draw_sprite(led_matrix, bottom_sprite_position + 0, 7, SPRITES_PEKMEN_7x7, sprite_index);
-      sprite_draw_sprite(led_matrix, bottom_sprite_position + 9, 7, SPRITES_SPOOK_PAARS_7x7, sprite_index);
-      sprite_draw_sprite(led_matrix, bottom_sprite_position + 18, 7, SPRITES_SPOOK_BLAUW_7x7, sprite_index);
-      sprite_draw_sprite(led_matrix, bottom_sprite_position + 27, 7, SPRITES_SPOOK_GROEN_7x7, sprite_index);
-      sprite_draw_sprite(led_matrix, bottom_sprite_position + 36, 7, SPRITES_SPOOK_ROOD_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, minute_sprite_position + 0, 8, SPRITES_PEKMEN_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, minute_sprite_position + 9, 8, SPRITES_SPOOK_PAARS_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, minute_sprite_position + 18, 8, SPRITES_SPOOK_BLAUW_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, minute_sprite_position + 27, 8, SPRITES_SPOOK_GROEN_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, minute_sprite_position + 36, 8, SPRITES_SPOOK_ROOD_7x7, sprite_index);
       sprite_set_replacement_color(0xFFFFFFFF , c32_ghost);
-      sprite_draw_sprite(led_matrix, bottom_sprite_position + 45, 7, SPRITES_SPOOK_WIT_7x7, sprite_index);
+      sprite_draw_sprite(led_matrix, minute_sprite_position + 45, 8, SPRITES_SPOOK_WIT_7x7, sprite_index);
       sprite_disable_replacement_color();
+    }
+    // =====HOUR GHOSTS=====
+    // activate ghosts at minute change
+    if ((!ghost_hour_active) && (hour() != last_hour)) {  
+      ghost_hour_active = true;
+      last_hour = hour();
+    }
+    if (ghost_hour_active) {
+      if (hour_sprite_position == -6*(7+2)) {   // 6 sprites, 7 pixels wide, 2 pixels space in between.
+        hour_sprite_position = 15;
+        ghost_hour_active = false;
+      }
+   
+      if (current_time_ms > (last_hour_update_time_ms + STEP_TIME_MS)) {
+        last_hour_update_time_ms = current_time_ms;
+        hour_sprite_position --;
+      }
+      int sprite_index = current_time_ms / (STEP_TIME_MS);
+      double hue_ghost_f = ((double)(current_time_ms % 1000)) / 1000.0;
+      uint32_t c32_ghost = led_matrix->ColorHSV_32((uint16_t)(65535L * hue_ghost_f), 255, 255);
+      sprite_set_replacement_color(0xFFFFFFFF , c32_ghost);
+      sprite_draw_sprite(led_matrix, hour_sprite_position + 0, 1, SPRITES_SPOOK_WIT_7x7, sprite_index, true);
+      sprite_disable_replacement_color();
+      sprite_draw_sprite(led_matrix, hour_sprite_position + 9, 1, SPRITES_SPOOK_ROOD_7x7, sprite_index, true);
+      sprite_draw_sprite(led_matrix, hour_sprite_position + 18, 1, SPRITES_SPOOK_GROEN_7x7, sprite_index, true);
+      sprite_draw_sprite(led_matrix, hour_sprite_position + 27, 1, SPRITES_SPOOK_BLAUW_7x7, sprite_index, true);
+      sprite_draw_sprite(led_matrix, hour_sprite_position + 36, 1, SPRITES_SPOOK_PAARS_7x7, sprite_index, true);
+      sprite_draw_sprite(led_matrix, hour_sprite_position + 45, 1, SPRITES_PEKMEN_7x7, sprite_index, true);
     }
 
 

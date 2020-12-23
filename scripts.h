@@ -3,7 +3,6 @@ var width = undefined;
 var height = undefined;
 var server = ""
 
-
 function fill_led_matrix() {
   fetch("get_data?item=width")
     .then( (response) => response.text() )
@@ -77,6 +76,7 @@ function update_color_of_all_buttons() {
     .then( change_background_color_of_buttons )
     .catch( (ex) => console.log(ex) );
 }
+
 
 function update_color_of_button(element_id) {
   var element = document.getElementById(element_id);

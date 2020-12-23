@@ -24,6 +24,8 @@ typedef struct EepromMem_struct {
   int    led_matrix_height;
   byte   no_wifi_aps;
   WifiApChar wifi_aps[EEPC_WIFI_AP_MAX_APS] ; 
+  EEPROM_BRIGHTNESS_MODES brightness_mode;
+  int    brightness;
   byte   checksum;
 } EepromMem;
 
@@ -77,6 +79,25 @@ void eeprom_clearWifiAps() {
   eeprom_mem_glb.no_wifi_aps = 0;
   eeprom_write();
 }
+
+void eeprom_setLedMatrixBrightnessMode(EEPROM_BRIGHTNESS_MODES b_mode) {
+  eeprom_mem_glb.brightness_mode = b_mode;
+  eeprom_write();
+}
+
+EEPROM_BRIGHTNESS_MODES eeprom_getLedMatrixBrightnessMode() {
+  return eeprom_mem_glb.brightness_mode;
+}
+
+void eeprom_setLedMatrixBrightness(int b) {
+  eeprom_mem_glb.brightness = b;
+  //eeprom_write();
+}
+
+int  eeprom_getLedMatrixBrightness() {
+  return eeprom_mem_glb.brightness;
+}
+
 
 byte checksum(EepromMem eeprom_memo_arg) {
   return eeprom_memo_arg.led_matrix_width + eeprom_memo_arg.led_matrix_height + eeprom_memo_arg.no_wifi_aps;
@@ -133,13 +154,14 @@ boolean eeprom_write() {
 
 void eeprom_serial() {
   Serial.println("----------");
-  Serial.println("led_matrix_width  " + String(eeprom_mem_glb.led_matrix_width) );
-  Serial.println("led_matrix_height " + String(eeprom_mem_glb.led_matrix_height));
-  Serial.println("n.o. wifi aps " + String(eeprom_mem_glb.no_wifi_aps));
+  Serial.println("led_matrix_width  : " + String(eeprom_mem_glb.led_matrix_width) );
+  Serial.println("led_matrix_height : " + String(eeprom_mem_glb.led_matrix_height));
+  Serial.println("n.o. wifi aps : " + String(eeprom_mem_glb.no_wifi_aps));
   for (int i = 0; i < eeprom_mem_glb.no_wifi_aps; i ++) {
     Serial.println(" " + String(i+1) + " " +String(eeprom_mem_glb.wifi_aps[i].ssid_buf));
     Serial.println("     " + String(eeprom_mem_glb.wifi_aps[i].pwd_buf));
   }
+  Serial.println("  brightness mode : " + String(EEPROM_BRIGHTNESS_MODES_STR[eeprom_getLedMatrixBrightnessMode()]));
   Serial.println("----------");
 }
 

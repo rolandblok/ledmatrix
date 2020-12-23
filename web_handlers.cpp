@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "led_control.h"
 #include "tracing.h"
+#include "non_volatile_data.h"
 
 #include <Arduino.h>
 #include <ESP8266WebServer.h>
@@ -109,15 +110,18 @@ void handle_get_data() {
       TRACE_OUT();
       
       return;
-    }
-    else {
+    } else {
       String content = get_colors_of_all_leds();
       server.send(200, "​text/plain", content);
     
       TRACE_OUT();
       
       return;
-    }
+    } 
+  } else if (item == "brightness") {
+      server.send(200, "​text/plain", String(eeprom_getLedMatrixBrightness()));
+      Serial.println("brightness requested : " + String(eeprom_getLedMatrixBrightness()));
+      return;
   }
   server.send(400, "text/plain", "Unrecognized arguments to get_data");
 
@@ -144,7 +148,14 @@ void handle_set_data() {
       server.send(200, "​text/plain", "ok");
       return;
     }
+  } else if (item == "brightness") {
+    int brightness = server.arg("value").toInt();
+    eeprom_setLedMatrixBrightness(brightness);
+    Serial.println(" brightness web set " + String(brightness));
+    server.send(200, "​text/plain", "ok");
+    return;
   }
+  
   server.send(400, "text/plain", "Unrecognized arguments to set_data");
 
   TRACE_OUT();
