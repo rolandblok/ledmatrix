@@ -29,7 +29,7 @@ int led_control_matrix_height = 16;
 int led_control_matrix_aspect = 1;
 int led_control_matrix_size = led_control_matrix_width * led_control_matrix_height;
 
-static PixelMatrix *led_matrix = NULL;  
+PixelMatrix *led_matrix = NULL;  
 
 static LED_MODE_ENUM led_control_led_mode = LED_MODE_CLOCK;
 static int stick_pos = 1;
@@ -142,6 +142,8 @@ void led_control_update(unsigned long current_time_ms)
 
   if (led_control_led_mode == LED_MODE_CLOCK) {
 
+    led_matrix->clear();
+  
     int dummy = 0;
     double hue_clock_f = ((double)(current_time_ms % 20000)) / 20000.0;
 
@@ -246,6 +248,8 @@ void led_control_update(unsigned long current_time_ms)
     static unsigned long STEP_TIME_MS = 200;
     static unsigned long last_update_time_ms = 0;
 
+    led_matrix->clear();
+  
     if (new_game) {
       new_game = false;
       last_update_time_ms = current_time_ms;
@@ -335,6 +339,7 @@ void led_control_update(unsigned long current_time_ms)
 
     
     
+  } else if (led_control_led_mode == LED_MODE_OFF) {
   }
   
   
