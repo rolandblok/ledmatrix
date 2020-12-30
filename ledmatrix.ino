@@ -164,7 +164,8 @@ void handle_leds() {
   
   int current_time_ms = millis();
   
-  if (current_time_ms - last_update_ms < 14) {
+//  if (current_time_ms - last_update_ms < 14) {
+  if (current_time_ms - last_update_ms < 100) {
     if (TRACE_ALL) TRACE_OUT();
     
   } else {

@@ -145,15 +145,16 @@ void led_control_update(unsigned long current_time_ms)
     led_matrix->clear();
   
     int dummy = 0;
-    double hue_clock_f = ((double)(current_time_ms % 20000)) / 20000.0;
+    float hue_clock_f = ((float)(current_time_ms % 20000)) / 20000.0;
 
     uint32_t c32_clock = led_matrix->ColorHSV_32((uint16_t)(65535L * hue_clock_f), 255, 255);
     sprite_set_replacement_color(0xFFFFFFFF , c32_clock);
 
-//    uint16_t hue_back_int = ((uint16_t)(65535L * (hue_clock_f + 0.5)))%65535L;
-//    uint32_t c32_back = led_matrix->ColorHSV_32(hue_back_int, 255, 50);
-    double hue_back_f = fmod(hue_clock_f + 0.5, 1.0);
+    float hue_back_f = fmod(hue_clock_f + 0.5, 1.0);
     uint32_t c32_back = led_matrix->ColorHSV_32((uint16_t)(65535L * hue_back_f), 255, 50);
+
+    Serial.println(" f + " + String(hue_clock_f) + " b : " + String(hue_back_f));
+    
     led_matrix->fill_screen(c32_back);
   
     // Create time

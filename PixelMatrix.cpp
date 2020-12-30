@@ -69,8 +69,70 @@ String PixelMatrix::toString(int r, int g, int b, int a) {
   return "" + String(r,HEX) + "," + String(g,HEX) + "," + String(b,HEX) + "," + String(a,HEX);
 }
 
+/**
+ * hue : 0 - 65535L
+ * SAT : 0 - 255
+ * VAL : 0 - 255
+ */
 uint32_t PixelMatrix::ColorHSV_32(uint16_t hue, uint8_t sat, uint8_t val) {
-  uint32_t c32 = ColorHSV(hue, sat, val);
-  c32 += 0xFF000000; // fill also a, because ADA forgot to.
+  //  uint32_t c32 = ColorHSV(hue, sat, val);
+  //  c32 += 0xFF000000; // fill also a, because ADA forgot to.
+
+  // new stolen method 1 
+  uint32_t c32 = HSVtoRGB((360.0/65535.0)*(float)hue, (100.0 / 255.0)*(float)sat, (100.0 / 255.0)*(float)val);
+  
   return c32;
+}
+
+/**
+ * H(Hue): 0-360 degrees
+ * S(Saturation): 0-100 percent
+ * V(Value): 0-100 percent
+ *  
+ * R(Red): 0-255
+ * G(Green): 0-255
+ * B(Blue): 0-255
+ * Converted to uint32 color
+ * 
+ * https://www.codespeedy.com/hsv-to-rgb-in-cpp/
+ */
+uint32_t PixelMatrix::HSVtoRGB(float H, float S,float V){
+    if(H>360 || H<0 || S>100 || S<0 || V>100 || V<0){
+        return this->Color(0,0,0);
+    }
+    float s = S/100.0;
+    float v = V/100.0;
+    float C = s*v;
+    // float X = C*(1-abs(fmod(H/60.0, 2)-1));   //OMG : https://www.best-microcontroller-projects.com/arduino-absolute-value.html
+    float hmod = fmod(H/60.0, 2.0)-1;
+    float abshmod = (hmod < 0)  ? -hmod : hmod;
+    float X = C*(1.0-abshmod);
+    float m = v-C;
+    float r,g,b;
+    if(H >= 0.0 && H < 60.0){
+        r = C,g = X,b = 0;
+    }
+    else if(H >= 60.0 && H < 120.0){
+        r = X,g = C,b = 0.0;
+    }
+    else if(H >= 120.0 && H < 180.0){
+        r = 0.0,g = C,b = X;
+    }
+    else if(H >= 180.0 && H < 240.0){
+        r = 0.0,g = X,b = C;
+    }
+    else if(H >= 240.0 && H < 300.0){
+        r = X,g = 0.0,b = C;
+    }
+    else{
+        r = C,g = 0.0,b = X;
+    }
+    float R = (r+m)*255.0;
+    float G = (g+m)*255.0;
+    float B = (b+m)*255.0;
+    uint32_t c32 = this->Color(R,G,B);
+    c32 += 0xFF000000; 
+    
+    return c32;
+    
 }

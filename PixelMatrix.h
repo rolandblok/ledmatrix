@@ -23,6 +23,8 @@ class PixelMatrix : public Adafruit_NeoPixel {
 
       uint32_t ColorHSV_32(uint16_t hue, uint8_t sat=255, uint8_t val=255);
 
+   private:
+      uint32_t HSVtoRGB(float H, float S, float V);
      
 };
  
