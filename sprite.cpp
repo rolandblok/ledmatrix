@@ -20,6 +20,33 @@ uint32_t _repl_org_color;
 uint32_t _repl_new_color;
 bool     _repl_color_enabled = false;
 
+void swap_colors() {
+  for (int16_t i=SPRITES_START; i < SPRITES_COUNT; i++) {
+    int width  = sprites_glb[i].width;
+    int height = sprites_glb[i].height;
+    int s      = width * height;
+    int nof    = sprites_glb[i].no_frames;
+
+    for (int16_t f=0; f < sprites_glb[i].no_frames; f++) {
+      for (int16_t h = 0; h < height; h++) {
+        for (int16_t w = 0; w < width; w++) {
+
+          uint32_t piksel = *(sprites_glb[i].data +(f * s) + ((h*width)+w));
+
+          uint8_t a = (uint8_t)(piksel >> 24);
+          uint8_t b = (uint8_t)(piksel >> 16);
+          uint8_t g = (uint8_t)(piksel >> 8);
+          uint8_t r = (uint8_t) piksel; 
+
+          piksel = (a << 24) | (r << 16) | (g << 8) | b;
+
+          *(sprites_glb[i].data +(f * s) + ((h*width)+w)) = piksel;
+        }
+      }
+    }
+  }
+}
+
 /**
  * I don't know how to create without function yet, easier import from piskel
  */
@@ -79,14 +106,17 @@ void sprite_create_sprites() {
   sprites_glb[SPRITES_PEKMEN_7x7].height    = PEKMEN_7X7_FRAME_HEIGHT;
   sprites_glb[SPRITES_PEKMEN_7x7].data      = (uint32_t*)pekmen_7x7_data;
 
-  
+  swap_colors();
 
   draw_all_width_glb = WHITE_SPACE_BETWEEN_SPRITES * (SPRITES_COUNT-1);
   for (int sprite_nr = (int)SPRITES_START; sprite_nr < (int)SPRITES_COUNT; sprite_nr++) {
     draw_all_width_glb += sprites_glb[sprite_nr].width;
   }
+
+  
   
 }
+
 
 void sprite_set_replacement_color(uint32_t org_color, uint32_t new_color) {
   _repl_org_color = org_color;
