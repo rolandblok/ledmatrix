@@ -19,14 +19,16 @@ typedef struct WifiApChar {
 } WifiApChar;
 
 typedef struct EepromMem_struct {
-  byte   valid;
-  int    led_matrix_width;
-  int    led_matrix_height;
-  byte   no_wifi_aps;
+  byte    valid;
+  int     led_matrix_width;
+  int     led_matrix_height;
+  byte    no_wifi_aps;
   WifiApChar wifi_aps[EEPC_WIFI_AP_MAX_APS] ; 
   EEPROM_BRIGHTNESS_MODES brightness_mode;
-  int    brightness;
-  byte   checksum;
+  int     brightness;
+  EEPROM_MATRIX_MODES matrix_mode;
+  boolean meander_mode;
+  byte    checksum;
 } EepromMem;
 
 
@@ -98,10 +100,28 @@ int  eeprom_getLedMatrixBrightness() {
   return eeprom_mem_glb.brightness;
 }
 
+void eeprom_setLedMatrixMode(EEPROM_MATRIX_MODES m_mode) {
+  eeprom_mem_glb.matrix_mode = m_mode;
+  eeprom_write();
+}
+
+EEPROM_MATRIX_MODES eeprom_getLedMatrixMode() {
+  return eeprom_mem_glb.matrix_mode;
+}
+
+void eeprom_toggleLedMatrixMeanderMode() {
+  eeprom_mem_glb.meander_mode = !eeprom_mem_glb.meander_mode;
+  eeprom_write();
+}
+boolean eeprom_getLedMatrixMeanderMode() {
+  return eeprom_mem_glb.meander_mode;
+}
+
 
 byte checksum(EepromMem eeprom_memo_arg) {
   return eeprom_memo_arg.led_matrix_width + eeprom_memo_arg.led_matrix_height + eeprom_memo_arg.no_wifi_aps;
 }
+
 
 /** 
  *  Use this in debugging to reset your eeprom
@@ -162,6 +182,8 @@ void eeprom_serial() {
     Serial.println("     " + String(eeprom_mem_glb.wifi_aps[i].pwd_buf));
   }
   Serial.println("  brightness mode : " + String(EEPROM_BRIGHTNESS_MODES_STR[eeprom_getLedMatrixBrightnessMode()]));
+  Serial.println("  matrix mode : " + String(EEPROM_MATRIX_MODES_STR[eeprom_getLedMatrixMode()]));
+  Serial.println("  meander mode : " + String(eeprom_getLedMatrixMeanderMode()?"TRUE":"FALSE"));
   Serial.println("----------");
 }
 

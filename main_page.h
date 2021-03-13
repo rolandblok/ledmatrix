@@ -53,6 +53,7 @@ char main_page[] = R"-=o=-(<!DOCTYPE html>
   <br>
     <button type="button" onclick="fetch('clock')">CLOCK</button>
     <button type="button" onclick="fetch('breakout')">BREAKOUT</button>    
+    <button type="button" onclick="fetch('digit')">DIGIT</button>    
     <button type="button" onclick="fetch('stream')">STREAM</button>    
     <br>
     <br>
@@ -71,6 +72,13 @@ char main_page[] = R"-=o=-(<!DOCTYPE html>
     <br>
     <button type="button" onclick="fetch('left')">LEFT</button>
     <button type="button" onclick="fetch('right')">RIGHT</button>    
+    <br>
+    <br>
+    <button type="button" onclick="fetch('toggle_meander')">Toggle Meander Mode</button>    
+    <br>
+    <button type="button" onclick="fetch('save_eeprom')">SAVE EEPROM</button>    
+    <br>
+    <button type="button" onclick="fetch('restart')">Restart u-controller</button>    
   </body>
 
 </html>

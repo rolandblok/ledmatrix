@@ -33,7 +33,10 @@ void setup() {
   
   tracing_set_output_on_serial(false);
   setup_wifi_aps();
-  led_control_setup(eeprom_getLedMatrixWidth(), eeprom_getLedMatrixHeight());
+  led_control_setup(eeprom_getLedMatrixWidth(), eeprom_getLedMatrixHeight(), eeprom_getLedMatrixMeanderMode());
+  if(eeprom_getLedMatrixMode() == EEPROM_MATRIX_MODES_DIGIT) {
+    led_control_set_mode(LED_MODE_DIGIT);
+  }
   
   setup_potmeter();
 }
@@ -118,6 +121,7 @@ void handle_serial() {
       eeprom_serial();
     } else if (command.equals("eepw")) {
       eeprom_write();
+      Serial.println("eeprom written");
     } else if (command.equals("eepc")) {
       eeprom_clear();
       eeprom_serial();
@@ -136,6 +140,24 @@ void handle_serial() {
       eeprom_setLedMatrixBrightnessMode((EEPROM_BRIGHTNESS_MODES)b_mode);
       Serial.println("Brightness mode set: " + String(EEPROM_BRIGHTNESS_MODES_STR[eeprom_getLedMatrixBrightnessMode()]));
       Serial.println("----------");
+      
+    } else if (command.equals("m_mode")) {
+      int m_mode = (int)(eeprom_getLedMatrixMode()) + 1;
+      if (m_mode == EEPROM_MATRIX_MODES_COUNT) {
+        m_mode = EEPROM_MATRIX_MODES_START;
+      }
+      eeprom_setLedMatrixMode((EEPROM_MATRIX_MODES)m_mode);
+      if(eeprom_getLedMatrixMode() == EEPROM_MATRIX_MODES_DIGIT) {
+        led_control_set_mode(LED_MODE_DIGIT);
+      } else {
+        led_control_set_mode(LED_MODE_CLOCK);
+      }
+      Serial.println("Matrix mode set: " + String(EEPROM_MATRIX_MODES_STR[eeprom_getLedMatrixMode()]));
+      Serial.println("----------");
+    } else if (command.equals("meander")) {
+      eeprom_toggleLedMatrixMeanderMode();
+      led_control_set_led_matrix_meander_mode(eeprom_getLedMatrixMeanderMode);
+      Serial.println("Meander mode set: " + String(eeprom_getLedMatrixMeanderMode()?"TRUE":"FALSE"));
     } else  {
       Serial.println("commands: ");
       Serial.println("  wifi   : scan available wifi and select");
@@ -148,6 +170,8 @@ void handle_serial() {
       Serial.println("  aspect : set matrix aspect (width / height)");
       Serial.println("  time   : show time");
       Serial.println("  b_mode : change brightness mode, currently: " + String(EEPROM_BRIGHTNESS_MODES_STR[eeprom_getLedMatrixBrightnessMode()]));
+      Serial.println("  m_mode : change matrix mode, currently: " + String(EEPROM_MATRIX_MODES_STR[eeprom_getLedMatrixMode()]));
+      Serial.println("  meander: toggle meander mode, currently: " + String(eeprom_getLedMatrixMeanderMode()?"TRUE":"FALSE"));
       Serial.println("  restart: restart micro controller");
     }
   }

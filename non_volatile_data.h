@@ -17,6 +17,20 @@ static const char* EEPROM_BRIGHTNESS_MODES_STR[EEPROM_BRIGHTNESS_MODES_COUNT] =
   [EEPROM_BRIGHTNESS_MODES_HTTP]   = "http mode"
 };
 
+enum EEPROM_MATRIX_MODES {
+  EEPROM_MATRIX_MODES_START = 0,
+  EEPROM_MATRIX_MODES_MATRIX = 0,
+  EEPROM_MATRIX_MODES_DIGIT,
+  EEPROM_MATRIX_MODES_COUNT
+};
+static const char* EEPROM_MATRIX_MODES_STR[EEPROM_MATRIX_MODES_COUNT] = 
+{
+  [EEPROM_MATRIX_MODES_MATRIX]  = "matrix mode",
+  [EEPROM_MATRIX_MODES_DIGIT]   = "digit mode"
+};
+
+
+
 #define EEPC_WIFI_AP_MAX_APS      (5)
 #define EEPC_WIFI_AP_SSID_MAX_LEN (33)
 #define EEPC_WIFI_AP_PWD_MAX_LEN  (64)
@@ -31,8 +45,15 @@ void eeprom_setLedMatrixWidth(int w);
 int  eeprom_getLedMatrixWidth();
 void eeprom_setLedMatrixBrightnessMode(EEPROM_BRIGHTNESS_MODES b_more);
 EEPROM_BRIGHTNESS_MODES eeprom_getLedMatrixBrightnessMode();
+
 void eeprom_setLedMatrixBrightness(int b);  // value 0 .. 255
 int  eeprom_getLedMatrixBrightness();
+
+void eeprom_setLedMatrixMode(EEPROM_MATRIX_MODES m_mode);
+EEPROM_MATRIX_MODES eeprom_getLedMatrixMode();
+
+void eeprom_toggleLedMatrixMeanderMode();
+boolean eeprom_getLedMatrixMeanderMode();
 
 void   eeprom_addWifiAp(String ssid, String pwd);
 int    eeprom_getNoWifiAps();

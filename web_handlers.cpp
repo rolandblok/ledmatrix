@@ -25,7 +25,12 @@ void setup_web_server() {
   server.on("/left",     [](){led_control_breakout_left(); server.send(200, "​text/plain", "ok");});
   server.on("/breakout", [](){led_control_set_mode(LED_MODE_BREAKOUT); server.send(200, "​text/plain", "ok");});
   server.on("/clock",    [](){led_control_set_mode(LED_MODE_CLOCK); server.send(200, "​text/plain", "ok");});
+  server.on("/digit",    [](){led_control_set_mode(LED_MODE_DIGIT); server.send(200, "​text/plain", "ok");});
   server.on("/stream",   [](){led_control_set_mode(LED_MODE_OFF); server.send(200, "​text/plain", "ok");});
+  server.on("/save_eeprom",   [](){eeprom_write(); server.send(200, "​text/plain", "ok");});
+  server.on("/toggle_meander",   [](){eeprom_toggleLedMatrixMeanderMode();led_control_set_led_matrix_meander_mode(eeprom_getLedMatrixMeanderMode()); server.send(200, "​text/plain", "ok");});
+  server.on("/restart",   [](){ server.send(200, "​text/plain", "ok");ESP.restart();});
+  
 
   server.onNotFound(handle_not_found);
 
