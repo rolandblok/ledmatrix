@@ -27,7 +27,8 @@ typedef struct EepromMem_struct {
   EEPROM_BRIGHTNESS_MODES brightness_mode;
   int     brightness;
   EEPROM_MATRIX_MODES matrix_mode;
-  boolean meander_mode;
+  bool    meander_mode;
+  
   byte    checksum;
 } EepromMem;
 
@@ -113,7 +114,7 @@ void eeprom_toggleLedMatrixMeanderMode() {
   eeprom_mem_glb.meander_mode = !eeprom_mem_glb.meander_mode;
   eeprom_write();
 }
-boolean eeprom_getLedMatrixMeanderMode() {
+bool eeprom_getLedMatrixMeanderMode() {
   return eeprom_mem_glb.meander_mode;
 }
 

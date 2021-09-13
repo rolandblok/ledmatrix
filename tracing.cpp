@@ -10,8 +10,8 @@ bool tracing_output_to_serial = false;
 String nothing = String();
 
 void trace_extended(const char* in_or_out, String function_name, String filename, int line_nbr, String extra) {
-  bool function_name_available = !function_name.equals(emptyString);
-  bool filename_available = !filename.equals(emptyString);
+  bool function_name_available = !function_name.equals("");
+  bool filename_available = !filename.equals("");
   bool line_nbr_available = (line_nbr > 0);
 
   String trace_string = String(in_or_out);

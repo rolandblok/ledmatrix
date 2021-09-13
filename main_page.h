@@ -79,6 +79,16 @@ char main_page[] = R"-=o=-(<!DOCTYPE html>
     <button type="button" onclick="fetch('save_eeprom')">SAVE EEPROM</button>    
     <br>
     <button type="button" onclick="fetch('restart')">Restart u-controller</button>    
+    <br>
+    <div id="uptime" onload="getUpTime()">
+      uptime : 
+      </div>
+      <script> 
+          var uptime = fetch("get_data?item=uptime")
+              .then( (response) => response.text())
+              .then( (uptime) => document.getElementById('uptime').innerHTML = "uptime : " + String(uptime)) 
+          
+        </script>
   </body>
 
 </html>

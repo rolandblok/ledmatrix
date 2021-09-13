@@ -5,6 +5,7 @@
 #include "wifi_aps.h"
 #include "tracing.h"
 #include "NTPtime.h"
+#include "uptime_formatter.h"
 
 #define TRACE_ALL false
 
@@ -159,6 +160,8 @@ void handle_serial() {
       led_control_set_led_matrix_meander_mode(eeprom_getLedMatrixMeanderMode);
       Serial.println("Meander mode set: " + String(eeprom_getLedMatrixMeanderMode()?"TRUE":"FALSE"));
     } else  {
+      Serial.println("Welcome to led matrix");
+      Serial.println("  uptime " + uptime_formatter::getUptime());
       Serial.println("commands: ");
       Serial.println("  wifi   : scan available wifi and select");
       Serial.println("  wlist  : list stored ssid + pwd");
@@ -173,6 +176,7 @@ void handle_serial() {
       Serial.println("  m_mode : change matrix mode, currently: " + String(EEPROM_MATRIX_MODES_STR[eeprom_getLedMatrixMode()]));
       Serial.println("  meander: toggle meander mode, currently: " + String(eeprom_getLedMatrixMeanderMode()?"TRUE":"FALSE"));
       Serial.println("  restart: restart micro controller");
+      
     }
   }
 

@@ -53,7 +53,7 @@ void eeprom_setLedMatrixMode(EEPROM_MATRIX_MODES m_mode);
 EEPROM_MATRIX_MODES eeprom_getLedMatrixMode();
 
 void eeprom_toggleLedMatrixMeanderMode();
-boolean eeprom_getLedMatrixMeanderMode();
+bool eeprom_getLedMatrixMeanderMode();
 
 void   eeprom_addWifiAp(String ssid, String pwd);
 int    eeprom_getNoWifiAps();

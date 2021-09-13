@@ -57,7 +57,7 @@ boolean handle_wifi() {
     unsigned long now_ms = millis();
     if (((now_ms - last_update_ms) > 3000) && (wifi_set_connecting)) {
       last_update_ms = now_ms;
-      WiFi.hostname("ledmatrix");
+      WiFi.hostname("roland");
       if (wifiMulti.run() == WL_CONNECTED ) {
         wifi_connected = true;
         Serial.println("SSID: " + WiFi.SSID() + "; IP address: " + WiFi.localIP().toString());

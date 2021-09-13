@@ -19,9 +19,9 @@ void _init_led_control_set_led_matrix();
 //static const uint8_t D1   = 5;
 //static const uint8_t D2   = 4;
 //static const uint8_t D3   = 0;
-//static const uint8_t D4   = 2;
-//static const uint8_t D5   = 14;
-//static const uint8_t D6   = 12;
+static const uint8_t D4   = 2;
+static const uint8_t D5   = 14;
+static const uint8_t D6   = 12;
 //static const uint8_t D7   = 13;
 //static const uint8_t D8   = 15;
 //static const uint8_t D9   = 3;
@@ -30,11 +30,13 @@ void _init_led_control_set_led_matrix();
 
 int led_control_matrix_pin = D6;
 int led_control_blink_pin = D4;
+
+
 int led_control_matrix_width = 16;
 int led_control_matrix_height = 16;
 int led_control_matrix_aspect = 1;
 int led_control_matrix_size = led_control_matrix_width * led_control_matrix_height;
-boolean led_control_matrix_meander_mode = true;
+bool led_control_matrix_meander_mode = true;
 
 PixelMatrix *led_matrix = NULL;  
 
@@ -84,7 +86,7 @@ void led_control_setup(int width, int height, boolean meander_mode) {
   TRACE_OUT();
 }
 
-void led_control_set_led_matrix_meander_mode(boolean meander_mode){
+void led_control_set_led_matrix_meander_mode(bool meander_mode){
   led_control_matrix_meander_mode = meander_mode;
   _init_led_control_set_led_matrix();
 }

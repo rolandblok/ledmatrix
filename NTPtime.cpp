@@ -4,6 +4,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include <TimeLib.h>
+#include <Timezone.h>
 
 // =====================
 // globals
@@ -17,6 +18,12 @@ const int     ntp_time_zone = 1;      // Central European Time
 time_t        ntp_last_successfull_sync = 0;  // timestamp of last successfull sync
 
 volatile boolean    ntp_refresh_lock = false;
+
+//Central European Time (Frankfurt, Paris, Eindhoven) https://codebender.cc/example/Timezone/WorldClock#WorldClock.ino
+TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 120};     //Central European Summer Time
+TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       //Central European Standard Time
+Timezone CE(CEST, CET);
+
 
 /**
  * setup the utp function for time syncing.
@@ -100,7 +107,7 @@ time_t getNtpTime() {
           secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
           secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
           secsSince1900 |= (unsigned long)packetBuffer[43];
-          ntp_time      = secsSince1900 - 2208988800UL + ntp_time_zone * SECS_PER_HOUR;
+          ntp_time      = secsSince1900 - 2208988800UL ;//+ ntp_time_zone * SECS_PER_HOUR;
           time_received = true;
         }
         udp_read_end_time = millis();  
@@ -121,7 +128,10 @@ time_t getNtpTime() {
         clock_verloop = now() - ntp_time;
       }
       ntp_last_successfull_sync = ntp_time;
-  
+
+      // localize and daylightsave
+      ntp_time = CE.toLocal(ntp_time);
+
       // debug output:
       Serial.print("# NTP: getNtpTime: time received in " + String(end_time - start_time) + " ms");
       Serial.println(", using " + String(retry) + " tries.");
@@ -133,9 +143,11 @@ time_t getNtpTime() {
   } else {
     Serial.println("# NTP: getNtpTime: refresh requested while locked (alraedy syncing). Will not execute.");
   }
+
   
   return ntp_time;
 }
+
 
 String getStrTime() {
   return (trail10print(hour(),true) + ":" + trail10print(minute(),true) + ":" + trail10print(second(),true) );

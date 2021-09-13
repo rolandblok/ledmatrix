@@ -33,7 +33,7 @@ static const char* LED_MODE_ENUM_STR[LED_MODE_COUNT] =
 void led_control_set_mode(LED_MODE_ENUM led_mode);
 void led_control_setup(int width, int height, boolean meander_mode);
 void led_control_set_led_matrix_size(int width, int height);
-void led_control_set_led_matrix_meander_mode(boolean meander_mode);
+void led_control_set_led_matrix_meander_mode(bool meander_mode);
 void led_control_set_brightness(int brightness);
 void led_control_update(unsigned long current_time_ms);
 

@@ -1,4 +1,5 @@
 #include "web_handlers.h"
+#include "uptime_formatter.h"
 
 #include "utils.h"
 #include "led_control.h"
@@ -159,6 +160,8 @@ void handle_get_data() {
       server.send(200, "​text/plain", String(eeprom_getLedMatrixBrightness()));
       Serial.println("brightness requested : " + String(eeprom_getLedMatrixBrightness()));
       return;
+  } else if (item == "uptime") {
+      server.send(200,"​text/plain", uptime_formatter::getUptime());
   }
   server.send(400, "text/plain", "Unrecognized arguments to get_data");
 
