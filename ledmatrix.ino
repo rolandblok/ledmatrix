@@ -1,3 +1,7 @@
+// NOTE TO READER
+// For big led board WEMOS D1 MINI is used, select LOLIN WEMOS D1 R2 & mini
+//   It only works withboard manager 2.7.4 (not with 3.0.2) : probably : https://github.com/esp8266/Arduino/releases/tag/3.0.0
+
 
 #include "non_volatile_data.h"
 #include "led_control.h"
@@ -190,7 +194,7 @@ void handle_leds() {
   static unsigned long FPS_update_ms = millis();
   static unsigned long FPS = 0;
   
-  int current_time_ms = millis();
+  unsigned long current_time_ms = millis();
   
   if (current_time_ms - last_update_ms < 14) {
     if (TRACE_ALL) TRACE_OUT();

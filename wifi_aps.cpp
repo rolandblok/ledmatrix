@@ -25,6 +25,7 @@ boolean wifi_set_connecting  = true;   // need to be able to stop for manual con
  */
 void setup_wifi_aps() {
   TRACE_IN();
+//  WiFi.disconnect(true); // remove wifi credentials from esp
   int no_wifi_apps = eeprom_getNoWifiAps();
   
   for (int ap_nr = 0; ap_nr < no_wifi_apps; ap_nr++) {
